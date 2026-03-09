@@ -35,17 +35,17 @@ layout: intro
 
 # Agenda for Today
 
-What we will cover in this 6-hour session:
+What we will cover in this session:
 
 <v-clicks>
 
-1. **Kubernetes Networking Deep Dive** (~45 min)
-2. **Ingress & Service Exposure** (~45 min)
-3. **Debugging Kubernetes Workflow** (~60 min)
-4. **Practice: Deploy & Debug (Minikube/K3s)** (~60 min)
+1. **Kubernetes Networking Deep Dive**
+2. **Ingress & Service Exposure**
+3. **Debugging Kubernetes Workflow**
+4. **Practice: Deploy & Debug (Minikube/K3s)**
    - *Hands-on: Finding and fixing intentional cluster bugs*
-5. **CI/CD Integration with K8s** (~45 min)
-6. **Hands-on Debugging Challenge** (~60 min)
+5. **CI/CD Integration with K8s**
+6. **Hands-on Debugging Challenge**
    - *Fix the broken E-Commerce App!*
 
 </v-clicks>
@@ -136,16 +136,43 @@ Smart routing for the modern web
 
 ---
 
-# What is an Ingress Controller?
+# What is an Ingress?
+
+We use two distinct resources in Kubernetes: The **Ingress Resource** and the **Ingress Controller**.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### 1. Ingress Resource (The Rules)
+- A YAML file defining routing rules.
+- "If traffic goes to `api.myapp.com`, send it to the `api-service`."
+- It is just a configuration object. By itself, it does nothing!
+
+</div>
+<div>
+
+### 2. Ingress Controller (The Engine)
+- The actual server (like NGINX, Traefik, or HAProxy) running in your cluster.
+- It watches the K8s API for new Ingress Resources.
+- When you apply an Ingress rule, the Controller updates its proxy configuration to route the traffic.
+
+</div>
+</div>
+
+---
+
+# How Ingress Routes Traffic
 
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-An **Ingress Controller** is essentially a reverse proxy (like NGINX or HAProxy) running INSIDE your cluster.
+Let's trace a user request from the browser to your Pod:
 
-1. You create **ONE** cloud LoadBalancer pointing to the Ingress Controller.
-2. You define **Ingress rules** (YAML files) telling it how to route traffic.
-3. The controller dynamically updates NGINX config to route traffic to your internal ClusterIP services based on Domain or Path.
+1. **External DNS:** User visits `api.myapp.com`. Resolves to the Cloud LoadBalancer IP.
+2. **Cloud LB:** Forwards traffic to the **Ingress Controller** Service on port 80/443.
+3. **Ingress Controller:** NGINX evaluates the HTTP Request Header (`Host: api.myapp.com`).
+4. **Internal Routing:** NGINX routes traffic to the targeted internal **ClusterIP Service**.
+5. **Pod:** Request reaches your application.
 
 </div>
 <div>
@@ -308,9 +335,48 @@ Live Demonstration on Minikube / K3s
 
 ---
 
+# How to Setup Minikube
+
+Before we debug, we need a local cluster. Minikube provisions a single-node K8s cluster inside a VM or Docker container on your laptop.
+
+<div class="grid grid-cols-2 gap-8 mt-8 text-left">
+<div>
+
+### Installation (Mac/Linux)
+
+```bash
+# macOS (Homebrew)
+$ brew install minikube
+
+# Start the cluster (using docker driver)
+$ minikube start --driver=docker
+```
+
+</div>
+<div>
+
+### Verification
+
+Check your cluster status:
+```bash
+$ minikube status
+```
+
+Verify your node is ready:
+```bash
+$ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   1m    v1.28.3
+```
+
+</div>
+</div>
+
+---
+
 # Demo Environment: Minikube
 
-Minikube creates a single-node Kubernetes cluster on your laptop.
+Now that our local cluster is running...
 
 <div class="mt-8 space-y-4 text-left">
 
@@ -394,7 +460,7 @@ layout: center
 class: text-center
 ---
 
-# Hands-on Debugging Challenge (60 min)
+# Hands-on Debugging Challenge
 ## The Broken E-Commerce App
 
 Navigate to the `exercise/` folder and open the `README.md`.

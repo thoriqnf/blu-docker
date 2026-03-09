@@ -35,18 +35,18 @@ layout: intro
 
 # Agenda for Today
 
-What we will cover in this 6-hour session:
+What we will cover in this session:
 
 <v-clicks>
 
-1. **DevOps Fundamentals** (~30 min)
-2. **Docker Containerization** (~45 min)
-3. **Practice: Docker Compose** (~75 min)
+1. **DevOps Fundamentals**
+2. **Docker Containerization**
+3. **Practice: Docker Compose**
    - *Hands-on: Build & run a Spring Boot + PostgreSQL Todo App*
-4. **Kubernetes Introduction** (~40 min)
-5. **YAML manifests + best practices** (~30 min)
-6. **ConfigMap & Secret** (~25 min)
-7. **Hands-on Exercise** (~60 min)
+4. **Kubernetes Introduction**
+5. **YAML manifests + best practices**
+6. **ConfigMap & Secret**
+7. **Hands-on Exercise**
    - *Containerize and compose a Notes API with Redis*
 
 </v-clicks>
@@ -64,17 +64,47 @@ The Mindset, Culture, and Tools
 layout: default
 ---
 
+# The Problem: The "Wall of Confusion"
+
+Before DevOps, Dev and Ops teams worked in silos, creating friction.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### Development (Dev)
+- **Goal:** Ship new features fast.
+- **Mindset:** Embrace change.
+- *"Works on my machine!"*
+
+</div>
+<div>
+
+### Operations (Ops)
+- **Goal:** Keep the system stable.
+- **Mindset:** Resist change (change causes downtime).
+- *"It doesn't work in production!"*
+
+</div>
+</div>
+
+*Result:* Pointing fingers, slow releases, and unhappy customers.
+
+---
+layout: default
+---
+
 # What is DevOps?
 
-It is **NOT** just a job title or a set of tools. It is a **cultural philosophy**.
+It is **NOT** just a job title, a specific team, or a set of tools. It is a **cultural philosophy** and practice.
 
 <div class="grid grid-cols-2 gap-4 mt-8">
 <div>
 
-### The Core Pillars
+### The Core Pillars (CALMS)
 
-- **Culture**: Collaboration between Development and Operations.
-- **Automation**: Removing manual toil.
+- **Culture**: Empathy and collaboration over blame.
+- **Automation**: Removing manual toil to increase reliability.
+- **Lean**: Eliminating waste in processes.
 - **Measurement**: Data-driven decisions (metrics, logs).
 - **Sharing**: Feedback loops and cross-functional teams.
 
@@ -180,6 +210,84 @@ Why do we need containers in the first place?
 </div>
 </div>
 
+---
+
+# What is Docker?
+
+Docker is the most popular platform to build, share, and run containers.
+
+<v-clicks>
+
+- **Build:** Package your code and dependencies into an immutable "Image".
+- **Share:** Distribute your Image globally via Registries (like Docker Hub).
+- **Run:** Execute the Image as a "Container" locally or in the cloud.
+
+</v-clicks>
+
+<div class="mt-8 p-4 bg-blue-100 rounded text-black text-center font-semibold">
+  Docker standardizes how software is shipped, making implementations perfectly repeatable regardless of the underlying infrastructure.
+</div>
+
+---
+
+# How to Setup Docker
+
+Getting started on your local machine.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### Installation
+
+- **Mac / Windows:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). It includes the Docker Engine GUI and the `docker` CLI. 
+- **Linux:** Install `docker-engine` via your package manager (`apt`, `yum`).
+
+</div>
+<div>
+
+### Verification
+
+Open your terminal and check the version:
+```bash
+$ docker --version
+Docker version 24.0.6, build ed223bc
+```
+
+Run a test container:
+```bash
+$ docker run hello-world
+```
+*If you see "Hello from Docker!", it's working!*
+
+</div>
+</div>
+
+---
+
+# What is a Docker Image?
+
+Before creating a container, you need an Image. 
+
+<div class="space-y-4 mt-8">
+
+- An **Image** is a read-only template with instructions for creating a Docker container.
+- It contains your code, runtime (e.g., Node.js, Java), system tools, libraries, and settings.
+- Images are built from **Layers**. Each instruction adds a layer, which are cached for speed.
+
+</div>
+
+### Basic Image Commands:
+
+```bash
+# Search for an image on Docker Hub
+$ docker search ubuntu
+
+# Download an image to your machine
+$ docker pull nginx:latest
+
+# List downloaded images
+$ docker image ls
+```
 
 ---
 
@@ -313,7 +421,7 @@ layout: center
 class: text-center
 ---
 
-# ☕ Break Time (15 Minutes)
+# ☕ Break Time
 
 Next up: Kubernetes Fundamentals
 
@@ -501,7 +609,7 @@ layout: center
 class: text-center
 ---
 
-# Final Hands-on Exercise (60 min)
+# Final Hands-on Exercise
 ## Containerize the Notes API
 
 Navigate to the `exercise/` folder and open the `README.md`.
