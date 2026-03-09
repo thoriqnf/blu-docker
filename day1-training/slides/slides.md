@@ -122,8 +122,6 @@ It is **NOT** just a job title, a specific team, or a set of tools. It is a **cu
 
 The engine that drives DevOps automation.
 
-<v-clicks>
-
 - **Continuous Integration (CI):**
   - Developers merge code frequently into a central repository.
   - Automated builds and tests run on every commit.
@@ -137,7 +135,35 @@ The engine that drives DevOps automation.
   - Every change that passes all stages of your production pipeline is released to your customers.
   - *No human intervention.*
 
-</v-clicks>
+---
+layout: center
+class: text-center
+---
+
+# ☕ Intermezzo: The "3 AM Production Fire"
+
+A short story of why DevOps matters.
+
+---
+
+# The 3 AM Production Fire
+
+Before CI/CD and automated tests, releasing software was a terrifying event called "Deployment Night".
+
+<div class="space-y-4 mt-8">
+
+1. **10:00 PM:** Operations team takes the servers offline. Customers see a maintenance page.
+2. **10:30 PM:** Developers hand over a 50-page Word document with installation instructions.
+3. **11:00 PM:** An Ops engineer makes a typo on step 34. The database migration fails.
+4. **1:00 AM:** The team tries to roll back, but the rollback script hasn't been tested in 6 months.
+5. **3:00 AM:** The CEO is awake. The developers are paged. Everyone is sweating.
+6. **7:00 AM:** The site is back up, but a minor bug forces the team to patch it live.
+
+</div>
+
+<div class="mt-8 p-4 bg-red-900 border border-red-500 rounded text-white font-bold text-center">
+  This is why "throw it over the wall" doesn't work. We need automated pipelines, not Word documents.
+</div>
 
 ---
 layout: center
@@ -150,28 +176,92 @@ Packaging applications for consistency
 
 ---
 
-# The Problem: "It works on my machine!"
-
-Why do we need containers in the first place?
+# Step 1: The "Why" (Bridging the Gap)
+Before learning commands, understand the problem Docker solves.
 
 <div class="grid grid-cols-2 gap-8 mt-8">
 <div>
-<h3 class="text-red-500 mb-4">The Development Matrix of Hell</h3>
 
-- Developer A uses Mac (Java 17, Postgres 14)
-- Developer B uses Windows (Java 21, MySQL)
-- Staging server is Ubuntu (Java 11, Postgres 12)
-- Production server is RHEL...
+### The "It works on my machine" Problem
+-   You write code on Windows, but the server runs Linux.
+-   It crashes because of a tiny version difference (e.g. Node 18 vs Node 20).
+-   **Result:** Wasted hours debugging environment paths.
 
-*Result:* Code works locally, crashes in production. Dependencies conflict. Upgrades are terrifying.
+</div>
+<div>
+
+### The Solution: Isolation
+-   Docker packages the code AND the environment (the OS, the libraries, the settings) into one unit.
+-   **Concept to Master:** One container cannot "see" or mess with another container unless you allow it.
+
+</div>
 </div>
 
-<div v-click>
-<h3 class="text-green-500 mb-4">The Container Solution</h3>
+---
+layout: center
+class: text-center
+---
 
-- Package the application AND all its dependencies together.
-- OS libraries, runtime (JRE), configuration, code.
-- Run exactly the same everywhere: local, staging, production.
+# A Brief History of Containers
+
+Before Docker, there was chaos.
+
+---
+
+# The Evolution of Isolation
+
+Docker didn't invent containers. It just made them exceptionally easy to use.
+
+- **1979 - Unix V7 (`chroot`):**
+  - The concept of "changing root". A process could only see files down a specific directory branch, creating a very basic jail.
+- **2000 - FreeBSD Jails:**
+  - Added process isolation. A "jail" was a partition inside a FreeBSD OS that felt like a full independent system.
+- **2008 - Linux Containers (LXC):**
+  - The true precursor to Docker. It combined Cgroups (resource limiting) and Namespaces (isolation) into a usable tool, but it was incredibly complex to configure.
+- **2013 - Docker:**
+  - Introduced the Docker Engine, the portable Docker Image format, and a dead-simple CLI. It took LXC's power and gave it a great developer experience.
+
+---
+
+# How Containers Actually Work (Linux Magic)
+
+Docker relies on three fundamental Linux kernel features. If you understand these, you understand containers.
+
+<div class="grid grid-cols-3 gap-4 mt-8">
+<div>
+
+### 1. Namespaces
+What a container **can see**.
+<ul class="text-sm text-gray-400 mt-2 space-y-2">
+  <li>**PID:** Process IDs (Container sees PID 1, Host sees PID 4503)</li>
+  <li>**NET:** Network cards, firewall rules</li>
+  <li>**MNT:** Mount points, filesystems</li>
+  <li>**UTS:** Hostnames</li>
+</ul>
+
+</div>
+<div>
+
+### 2. Control Groups (Cgroups)
+What a container **can use**.
+<ul class="text-sm text-gray-400 mt-2 space-y-2">
+  <li>CPU limits (e.g. max 50% of 1 core)</li>
+  <li>Memory limits (e.g. max 512MB RAM)</li>
+  <li>Block I/O limits (Disk speed)</li>
+</ul>
+*Prevents one bad container from crashing the whole server.*
+
+</div>
+<div>
+
+### 3. Union File System (UnionFS)
+How an image is **stored**.
+<ul class="text-sm text-gray-400 mt-2 space-y-2">
+  <li>Layered filesystems (Overlay2)</li>
+  <li>Multiple directories are mounted as a single unified view.</li>
+  <li>Enables Docker's lightweight image layers and fast boot times.</li>
+</ul>
+
 </div>
 </div>
 
@@ -313,11 +403,79 @@ How Docker works under the hood.
 
 ---
 
-# The Dockerfile
+# Deep Dive: The Docker Engine Internals
+
+When you type `docker run`, what *actually* happens? The Docker Engine is not a monolith.
+
+<div class="mt-8 space-y-4 text-sm bg-gray-900 border border-gray-700 p-6 rounded shadow-lg">
+
+1. **`dockerd` (The Manager):** The permanent background daemon. It handles the REST API, manages images on the disk, and configures networking. But it *does not* run containers itself.
+2. **`containerd` (The Supervisor):** An industry-standard core container runtime. `dockerd` tells `containerd` what image to run. `containerd` downloads the image layers and manages the container lifecycle (start, stop, pause).
+3. **`runc` (The Executioner):** The low-level binary that actually talks to the Linux kernel to create Namespaces and Cgroups. `runc` spawns the container process and exits.
+4. **`containerd-shim`:** Because `runc` exits immediately, `containerd-shim` stays glued to the container to keep `stdout/stderr` (logs) open, allowing you to run `docker logs` without `dockerd` crashing.
+
+</div>
+
+<div class="mt-8 text-center text-gray-400 text-sm">
+  <strong>Why this matters:</strong> If dockerd crashes or restarts, your containers keep running perfectly fine without interruption thanks to containerd-shim!
+</div>
+
+---
+
+# Deep Dive: Docker Network Drivers
+
+By default, Docker containers are isolated. We use "Drivers" to connect them.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+<h3 class="text-blue-400 font-bold">1. bridge (The Default)</h3>
+
+- Creates a private, internal virtual network inside the host.
+- Containers on the same bridge can talk via internal DNS hostname.
+- **Port Mapping (`-p 8080:80`)** is required to allow external traffic through the host firewall.
+
+<h3 class="text-green-400 font-bold mt-4">2. host</h3>
+
+- Removes all network isolation entirely. The container shares the host's networking namespace.
+- **Use Case:** Extreme performance software (e.g. High-Frequency Trading API) that cannot afford the 1ms latency penalty of a virtual network hop.
+
+</div>
+<div>
+
+<h3 class="text-gray-400 font-bold">3. none</h3>
+
+- The container receives a loopback interface (`localhost`) and literally nothing else. Cannot reach the internet, cannot reach other containers.
+- **Use Case:** Creating an absolute air-gapped system to securely process cryptographic keys without fear of data exfiltration.
+
+<h3 class="text-purple-400 font-bold mt-4">4. macvlan</h3>
+
+- Bypasses virtual bridges completely and assigns the container a MAC address directly on your physical office/data-center network.
+- The container appears as an independent physical computer to your actual router.
+- **Use Case:** Legacy applications that expect to be directly attached to a physical VLAN and broadcast their own IP.
+
+</div>
+</div>
+
+---
+
+# Step 4: Building Your Own (The Dockerfile)
 
 The recipe for building an image.
 
-```dockerfile {all|1-2|4-5|7-8|10-11|13-14|all}
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### **Analogy**
+It’s like a grocery list and cooking instructions combined into one file.
+
+### **The Bridge**
+Instead of manually installing Node.js or Python on a server, you write `FROM node:20`. Docker does the exact same installation for you every time.
+
+</div>
+<div>
+
+```dockerfile {1-2|4-5|7-8|10-11|13-14}
 # 1. Base Image - Start from an existing OS/Runtime
 FROM eclipse-temurin:21-jre-alpine
 
@@ -334,49 +492,280 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
+</div>
+</div>
+
 ---
 
-# Multi-stage Builds
+# Advanced Dockerfile: COPY vs ADD
 
-Best practice for compiled languages like Java, Go, or Node (React/Angular).
+They look identical, but they behave differently.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### `COPY`
+- The preferred, safer command.
+- It literally just copies a file or folder from your laptop (the host) into the container's filesystem.
+- **Rule of thumb:** Always use `COPY` unless you explicitly need `ADD` features.
 
 ```dockerfile
-# Stage 1: Build the app (heavy image, includes Maven & JDK)
-FROM maven:3.9-eclipse-temurin-21-alpine AS builder
-WORKDIR /build
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
+COPY ./src /app/src
+COPY package.json /app/
+```
 
-# Stage 2: Run the app (lightweight image, only JRE)
+</div>
+<div>
+
+### `ADD`
+- The dangerous, powerful command.
+- It copies files, **BUT** if the file is a `.tar.gz` archive, `ADD` will automatically extract it.
+- **BUT** `ADD` can also download URLs directly into the container.
+
+```dockerfile
+# This will download from the internet during build
+ADD https://example.com/big-dataset.json /app/data/
+
+# This will magically extract the archive into /opt
+ADD my-app-source.tar.gz /opt/
+```
+
+</div>
+</div>
+
+---
+
+# Advanced Dockerfile: CMD vs ENTRYPOINT
+
+The age-old confusing question: How do I start my app?
+
+<div class="space-y-6 mt-8">
+
+<div>
+  <h3 class="text-blue-400">CMD (Command)</h3>
+  <p class="text-sm">Sets the default command or parameters. **It is easily overridden** by the user at runtime.</p>
+  <div class="bg-gray-800 p-2 rounded mt-2">
+    <code>CMD ["python", "app.py"]</code><br/>
+    <span class="text-xs text-gray-500">If user runs <code>docker run my-image bash</code>, the CMD is ignored, and <code>bash</code> runs instead.</span>
+  </div>
+</div>
+
+<div>
+  <h3 class="text-green-400">ENTRYPOINT</h3>
+  <p class="text-sm">Configures a container that will run as an executable. **It cannot be easily overridden.**</p>
+  <div class="bg-gray-800 p-2 rounded mt-2">
+    <code>ENTRYPOINT ["nginx", "-g", "daemon off;"]</code><br/>
+    <span class="text-xs text-gray-500">If user runs <code>docker run my-nginx bash</code>, Docker actually runs <code>nginx -g "daemon off;" bash</code> (which crashes NGINX).</span>
+  </div>
+</div>
+
+</div>
+
+<div class="mt-4 p-2 bg-gray-900 border-l-4 border-blue-500 rounded text-sm italic">
+  <strong>Best Practice:</strong> Use ENTRYPOINT for the actual application binary, and use CMD to pass default arguments to that ENTRYPOINT.
+</div>
+
+---
+
+# Dockerfile Best Practices & Caching
+
+Docker images are built strictly layer-by-layer, from top to bottom.
+
+1. **Each instruction (`RUN`, `COPY`, `ADD`) creates a new Layer.**
+   - If Layer 2 changes, Docker has to rebuild Layer 2, Layer 3, Layer 4, etc.
+   - Therefore, put instructions that change frequently (like copying source code) at the **BOTTOM** of the file.
+
+2. **The classic Node.js caching trick:**
+   ```dockerfile
+   # BAD: Re-downloads all NPM packages every time you edit a single line of code!
+   COPY . /app
+   RUN npm install
+   
+   # GOOD: Only re-downloads NPM packages if package.json actually changed.
+   COPY package*.json /app/
+   RUN npm install
+   COPY . /app
+   ```
+
+3. **Use `.dockerignore`:** 
+   - Never copy your local `node_modules` or `.git` folder into the image. It bloats the image by gigabytes and overwrites Linux binaries with Mac binaries.
+
+---
+
+# Security: Running as Non-Root
+
+By default, Docker containers run as the `root` user. **This is a massive security risk.**
+
+If a hacker compromises your app inside the container, they are `root`. If they find a way to escape the container, they are `root` on your physical host server.
+
+```dockerfile {all|3-4|5-6|8-9|all}
+FROM node:20-alpine
+
+# 1. Create a dedicated user and group (Alpine Linux uses addgroup/adduser)
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# 2. Tell Docker to switch to this user for the rest of the build and runtime
+USER appuser
+
+# 3. Now when the app runs, it has zero privileges to modify OS files!
+CMD ["node", "server.js"]
+```
+
+---
+
+# Multi-Stage Builds: The 1-Gigabyte Problem
+
+Compiled languages (Java, Go, C++) require heavy SDKs to build, but only need a tiny runtime to actually execute.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### The Anti-Pattern (Huge Image)
+If you build and run Java in one image, you must ship the heavy JDK to production.
+- **Image Size:** 800MB+
+- **Security:** Shipping compilers to production means hackers can compile rootkits directly on your container!
+
+</div>
+<div>
+
+### The Solution (Multi-Stage)
+You use multiple `FROM` statements. You build the app in Stage 1, copy the compiled binary, and throw away Stage 1 completely.
+- **Image Size:** 150MB
+- **Security:** Hardened, minimal attack surface.
+
+</div>
+</div>
+
+---
+
+# Multi-Stage Example 1: Java Spring Boot
+
+```dockerfile {all|1-5|7-9|11-13|all}
+# STAGE 1: "builder" (Heavy JDK ~ 400MB)
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
+
+# STAGE 2: "production" (Light JRE ~ 100MB)
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-# Only copy the final compiled JAR from the builder stage!
-COPY --from=builder /build/target/app.jar app.jar
-EXPOSE 8080
+
+# Magically pull the compiled JAR from Stage 1. Everything else is discarded!
+COPY --from=builder /app/target/todo-api.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-*Result: Image size drops from ~800MB to ~150MB.*
-
----
-layout: center
-class: text-center
 ---
 
-# Section 3: Practice - Docker Compose
-Build & run a Todo App (Spring Boot + PostgreSQL)
+# Multi-Stage Example 2: Go (The Ultimate Flex)
+
+Go can compile to a static binary with exactly ZERO external OS dependencies.
+
+```dockerfile {all|1-2|4|6-7|9-10|all}
+# STAGE 1: Builder (Heavy Go SDK ~ 800MB)
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY . .
+# Compile a 100% standalone static binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o my-api 
+
+# STAGE 2: "scratch" (Empty Image ~ 0MB)
+# The "scratch" image has no OS, no shell, no libraries. Literal nothingness.
+FROM scratch
+
+COPY --from=builder /app/my-api /my-api
+ENTRYPOINT ["/my-api"]
+```
+
+**Final Image Size:** Exact size of your binary (~10MB). No OS vulnerabilities possible!
 
 ---
 
-# Introducing Docker Compose
+# Step 5: Persistence (Volumes)
 
-Running multi-container applications easily.
+**Crucial Beginner Tip:** When a container is deleted, everything inside it is wiped. If you have a database inside a container, your data dies with it!
 
-- A `docker run` command for a database + an app becomes dozens of lines of flags.
-- **Docker Compose** allows you to declare your entire stack in a single `yaml` file.
-- Handles networks, volumes, and service dependencies automatically.
+<div class="mt-8 p-6 bg-gray-800 rounded border border-gray-600">
+
+### The Bridge
+**Volumes** are like "External Hard Drives" for your containers. You plug them in so that even if the container is destroyed, the data stays safe on your actual computer's hard drive.
+
+</div>
+
+---
+
+# The 4 Types of Docker Mounts
+
+Docker actually provides four distinct ways to manage state.
+
+<div class="grid grid-cols-2 gap-4 mt-6 text-sm flex items-stretch">
+<div class="bg-gray-800 p-4 border border-gray-700 rounded block h-full">
+
+<h3 class="text-blue-400">1. Named Volumes (The Best)</h3>
+<p class="text-xs mt-2 text-gray-300">Managed entirely by Docker. Docker chooses exactly where to store the data on your host OS (`/var/lib/docker/volumes/`). You just reference it by a friendly name.</p>
+<code class="block mt-2 bg-black p-2">docker run -v my-db-data:/var/lib/mysql</code>
+
+</div>
+<div class="bg-gray-800 p-4 border border-gray-700 rounded block h-full">
+
+<h3 class="text-green-400">2. Bind Mounts (The Developer Way)</h3>
+<p class="text-xs mt-2 text-gray-300">You map an explicit, absolute folder path from your Mac/Windows into the container. Excellent for live-reloading code as you type.</p>
+<code class="block mt-2 bg-black p-2">docker run -v $(pwd)/src:/app/src</code>
+
+</div>
+<div class="bg-gray-800 p-4 border border-gray-700 rounded block h-full">
+
+<h3 class="text-red-400">3. Anonymous Volumes (The Danger)</h3>
+<p class="text-xs mt-2 text-gray-300">You ask for a volume, but give it no name. Docker generates a random hash (`e3b0c442...`). If you lose the hash, you effectively lose the data.</p>
+<code class="block mt-2 bg-black p-2">docker run -v /var/lib/mysql mysql</code>
+
+</div>
+<div class="bg-gray-800 p-4 border border-gray-700 rounded block h-full">
+
+<h3 class="text-purple-400">4. tmpfs Mounts (The Secret)</h3>
+<p class="text-xs mt-2 text-gray-300">Data never touches the host hard drive. It is written completely into the physical RAM memory. If the container stops, the RAM is flushed.</p>
+<code class="block mt-2 bg-black p-2">docker run --tmpfs /app/secrets</code>
+
+</div>
+</div>
+
+---
+
+# Scenario: Taking a Backup
+
+"I have a Named Volume holding my production Postgres database. How do I actually back that up to an S3 bucket or a `.tar.gz` file without shutting down the database?"
+
+<div class="mt-8 space-y-4">
+
+**The Trick:** You use an ephemeral container as a courier.
+
+1. You start a temporary Alpine container (`--rm` means delete immediately when done).
+2. You mount the *database* volume to `/volume`.
+3. You mount your *laptop's desktop* to `/backup`.
+4. You run a Linux command inside the short-lived container to zip them up.
+
+```bash
+docker run --rm \
+  -v my-prod-db-data:/volume \          # Attach the DB
+  -v /Users/thq/Desktop:/backup \       # Attach your Macbook
+  alpine \
+  tar cvf /backup/db-backup.tar /volume # Run the backup!
+```
+*Result: A neat `db-backup.tar` appears on your Macbook Desktop, while Postgres continues running happily!*
+
+</div>
+
+---
+
+---
+
+# Step 6: Orchestration (Docker Compose)
+
+Real apps have a front-end, a back-end, and a database. Running three separate `docker run` commands is annoying.
+
+- **Docker Compose:** This is a single YAML file that says "Start these three containers together and make sure they can talk to each other."
+- **The Command:** `docker-compose up`. This is the "Magic Button" for developers.
 
 ```yaml {all|2-3|4-8|10-14|all}
 services:
@@ -396,8 +785,47 @@ services:
 ```
 
 ---
-layout: iframe-right
-url: https://docs.docker.com/compose/
+
+# Deep Dive: Docker Compose Networking
+
+How does the API find the Database without knowing its IP address?
+
+<div class="mt-8 p-4 bg-gray-800 rounded border border-gray-600 space-y-4">
+
+1. When you run `docker-compose up`, Docker creates a **custom internal Bridge Network**.
+2. Both `db` and `api` are securely attached to this virtual network.
+3. Docker provides **embedded DNS resolution**.
+4. The `api` container simply needs to connect to the hostname `db` (the exact name of the service in the YAML file). Docker transparently resolves `db` to `172.18.0.3` (or whatever the internal IP is).
+
+</div>
+
+**Important:** You do NOT need to map ports (e.g., `ports: ["5432:5432"]`) for containers to talk to *each other* on the same Compose network. Port mapping is only required if you want your *laptop* (localhost) to talk to the container.
+
+---
+
+# Deep Dive: Depends_on & Healthchecks
+
+`depends_on` only waits for the container to *start*, not for the application inside to be *ready*. If your Java API boots in 1 second, but Postgres takes 5 seconds to initialize up, your API will crash on boot!
+
+**The Fix:** Use `healthcheck`.
+
+```yaml {all|3-7|10-14|all}
+services:
+  db:
+    image: postgres:16-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+```
+
 ---
 
 # Hands-on: Building the Todo App
@@ -412,18 +840,38 @@ We have a Spring Boot API and we need PostgreSQL.
 5. Test the API: `curl http://localhost:8080/`
 
 <br/>
-<div class="bg-blue-100 p-4 rounded text-black">
+<div class="bg-blue-100 p-4 rounded text-black text-center max-w-2xl mx-auto">
   <strong>Hint:</strong> Use the <code>README.md</code> in the starter folder for step-by-step guidance!
 </div>
 
 ---
-layout: center
-class: text-center
----
 
-# ☕ Break Time
+# Scenario: The Monorepo Architecture
 
-Next up: Kubernetes Fundamentals
+"My company uses a Monorepo. We have 5 microservices (Payment, Auth, Inventory, Storefront, DB) all in the exact same git repository. Do I need 5 `docker-compose.yml` files?"
+
+**No.** Docker Compose shines at orchestrating a complete stack from a single file.
+
+```yaml {1-8|10-14|16-20|all}
+# /my-monorepo/docker-compose.yml
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  
+  auth-service:
+    # Instead of "build: .", point it to the subfolder!
+    build: ./services/auth
+    depends_on: { db: { condition: service_healthy } }
+
+  payment-service:
+    build: ./services/payment
+    depends_on: [auth-service]
+    
+volumes:
+  db-data: # This declares the Named Volume!
+```
 
 ---
 layout: center
