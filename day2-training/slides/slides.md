@@ -1,9 +1,13 @@
 ---
-theme: seriph
-background: https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=2034&auto=format&fit=crop
-class: text-center
+theme: neversink
+colorSchema: dark
 highlighter: shiki
-lineNumbers: false
+lineNumbers: true
+fonts:
+  sans: Inter
+  serif: Inter
+  mono: Fira Code
+aspectRatio: '16/9'
 info: |
   ## DevOps Day 2 Training
   Debugging Kubernetes & Advanced Deployment
@@ -37,18 +41,23 @@ layout: intro
 
 What we will cover in this session:
 
-1. **Kubernetes Networking Deep Dive**
-2. **Ingress & Service Exposure**
-3. **Debugging Kubernetes Workflow**
-4. **Practice: Deploy & Debug (Minikube/K3s)**
-   - *Hands-on: Finding and fixing intentional cluster bugs*
-5. **CI/CD Integration with K8s**
-6. **Hands-on Debugging Challenge**
-   - *Fix the broken E-Commerce App!*
+<v-clicks>
+<ol class="mt-4 space-y-2 list-decimal ml-6">
+  <li><b>Kubernetes Networking Deep Dive</b></li>
+  <li><b>Ingress & Service Exposure</b></li>
+  <li><b>Debugging Kubernetes Workflow</b></li>
+  <li><b>Practice: Deploy & Debug (Minikube/K3s)</b>
+    <ul class="ml-6 list-disc text-gray-400"><li><em>Hands-on: Finding and fixing intentional cluster bugs</em></li></ul>
+  </li>
+  <li><b>CI/CD Integration with K8s</b></li>
+  <li><b>Hands-on Debugging Challenge</b>
+    <ul class="ml-6 list-disc text-gray-400"><li><em>Fix the broken E-Commerce App!</em></li></ul>
+  </li>
+</ol>
+</v-clicks>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # ☕ Intermezzo: The Orchestration Wars
@@ -72,8 +81,7 @@ Before Kubernetes was the undisputed king, there was a fierce battle for how to 
   - **Why it won:** Highly extensible API, declarative "Desired State" architecture, and massive community backing (CNCF).
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Recap: The "Restaurant" Analogy
@@ -186,8 +194,7 @@ Assume every developer will accidentally write a memory leak.
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Project Setup: From Zero to K8s
@@ -214,8 +221,7 @@ You just finished writing your Node.js application. What are the exact steps to 
 **Congratulations.** Your app is now running, load-balanced, auto-healing, and accessible inside the cluster!
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 1: Kubernetes Networking Deep Dive
@@ -235,10 +241,12 @@ Kubernetes imposes fundamental rules on networking:
 3. **Pods can communicate with all other Pods without NAT.**
    - Even if they are on completely different physical servers (Worker Nodes).
 
-<div v-click class="mt-6 p-4 bg-gray-100 rounded text-black text-sm">
+<v-clicks>
+<div class="mt-6 p-4 bg-gray-100 rounded text-black text-sm">
   <strong>How does this work?</strong> <br/>
   It's handled by a CNI plugin (Container Network Interface) like Calico, Flannel, or Cilium which creates an overlay network extending across your cluster.
 </div>
+</v-clicks>
 
 ---
 
@@ -285,8 +293,7 @@ If `LoadBalancer` exposes apps to the internet, why isn't it enough?
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Deep Dive: Kubernetes Architecture
@@ -367,8 +374,7 @@ The networking muscle on every physical server.
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Deep Dive: Advanced K8s Workloads
@@ -435,8 +441,7 @@ When database instances need their identity to survive reboots.
 
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 2: Ingress & Service Exposure
@@ -681,8 +686,7 @@ If everything in K8s is declarative YAML stored in Git, **where do you put the D
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 3: Debugging Kubernetes
@@ -796,8 +800,7 @@ The commands every DevOps engineer uses daily:
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 4: Practice - Deploy & Debug
@@ -860,8 +863,7 @@ Now that our local cluster is running...
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Deep Dive: Helm - The Kubernetes Package Manager
@@ -986,8 +988,7 @@ spec:
 ```
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Hands-on Debugging Challenge

@@ -1,9 +1,15 @@
 ---
-theme: seriph
-background: https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop
+theme: neversink
+
 class: text-center
 highlighter: shiki
-lineNumbers: false
+lineNumbers: true
+fonts:
+  sans: Outfit
+  serif: Outfit
+  mono: Fira Code
+aspectRatio: '16/9'
+colorSchema: dark
 info: |
   ## DevOps Day 1 Training
   Containerization & Kubernetes Fundamentals
@@ -17,9 +23,9 @@ title: Day 1 - Containerization & Kubernetes Fundamentals
 
 ## Containerization & Kubernetes Fundamentals
 
-<div class="mt-10">
-  <img src="/docker-architecture.png" class="h-40 rounded shadow mx-auto inline-block" />
-  <img src="/k8s-architecture.png" class="h-40 rounded shadow mx-auto inline-block ml-4" />
+<div class="mt-10 flex justify-center gap-8">
+  <img src="/docker-architecture.png" class="h-40 rounded shadow-xl" />
+  <img src="/k8s-architecture.png" class="h-40 rounded shadow-xl" />
 </div>
 
 <div class="abs-br m-6 flex gap-2">
@@ -30,30 +36,35 @@ title: Day 1 - Containerization & Kubernetes Fundamentals
 </div>
 
 ---
-layout: intro
+layout: top-title
 ---
 
 # Agenda for Today
 
 What we will cover in this session:
 
-<v-clicks>
-
-1. **DevOps Fundamentals**
-2. **Docker Containerization**
-3. **Practice: Docker Compose**
-   - *Hands-on: Build & run a Spring Boot + PostgreSQL Todo App*
-4. **Kubernetes Introduction**
-5. **YAML manifests + best practices**
-6. **ConfigMap & Secret**
-7. **Hands-on Exercise**
-   - *Containerize and compose a Notes API with Redis*
-
-</v-clicks>
+<div class="mt-8 mx-auto w-3/4">
+  <Admonition color="blue" title="Today's Topics" icon="mdi-format-list-bulleted" custom="text-lg">
+    <v-clicks>
+    <ol class="mt-4 space-y-4 list-decimal ml-6 pb-4">
+      <li><b>DevOps Fundamentals</b></li>
+      <li><b>Docker Containerization</b></li>
+      <li><b>Practice: Docker Compose</b>
+        <ul class="ml-6 list-disc text-blue-200 text-sm mt-1"><li><em>Hands-on: Build & run a Spring Boot + PostgreSQL Todo App</em></li></ul>
+      </li>
+      <li><b>Kubernetes Introduction</b></li>
+      <li><b>YAML manifests + best practices</b></li>
+      <li><b>ConfigMap & Secret</b></li>
+      <li><b>Hands-on Exercise</b>
+        <ul class="ml-6 list-disc text-blue-200 text-sm mt-1"><li><em>Containerize and compose a Notes API with Redis</em></li></ul>
+      </li>
+    </ol>
+    </v-clicks>
+  </Admonition>
+</div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 1: DevOps Fundamentals
@@ -61,59 +72,67 @@ class: text-center
 The Mindset, Culture, and Tools
 
 ---
-layout: default
+layout: two-cols-title
 ---
 
 # The Problem: The "Wall of Confusion"
 
 Before DevOps, Dev and Ops teams worked in silos, creating friction.
+<br/>
 
-<div class="grid grid-cols-2 gap-8 mt-8">
-<div>
-
-### Development (Dev)
-- **Goal:** Ship new features fast.
-- **Mindset:** Embrace change.
-- *"Works on my machine!"*
-
-</div>
-<div>
-
-### Operations (Ops)
-- **Goal:** Keep the system stable.
-- **Mindset:** Resist change (change causes downtime).
-- *"It doesn't work in production!"*
-
-</div>
+::left::
+<div class="mr-4 mt-8">
+  <Admonition color="blue" title="Development (Dev)" icon="mdi-xml" customTitle="text-lg">
+    <ul class="space-y-4 mt-4 pb-4">
+      <li><b>Goal:</b> Ship new features fast.</li>
+      <li><b>Mindset:</b> Embrace change.</li>
+      <li class="italic border-l-2 border-blue-400 pl-2 mt-4 text-blue-200">"Works on my machine!"</li>
+    </ul>
+  </Admonition>
 </div>
 
-*Result:* Pointing fingers, slow releases, and unhappy customers.
+::right::
+<div class="ml-4 mt-8">
+  <Admonition color="rose" title="Operations (Ops)" icon="mdi-server-network" customTitle="text-lg">
+    <ul class="space-y-4 mt-4 pb-4">
+      <li><b>Goal:</b> Keep the system stable.</li>
+      <li><b>Mindset:</b> Resist change (causes downtime).</li>
+      <li class="italic border-l-2 border-rose-400 pl-2 mt-4 text-rose-200">"It doesn't work in production!"</li>
+    </ul>
+  </Admonition>
+</div>
 
 ---
-layout: default
+layout: two-cols-title
 ---
 
 # What is DevOps?
 
 It is **NOT** just a job title, a specific team, or a set of tools. It is a **cultural philosophy** and practice.
 
-<div class="grid grid-cols-2 gap-4 mt-8">
-<div>
+::left::
+<div class="mr-4 mt-4">
+  <Admonition color="emerald" title="The Core Pillars (CALMS)" icon="mdi-pillar" customTitle="text-lg">
+    <ul class="space-y-2 mt-2">
+      <li><b>Culture</b>: Empathy and collaboration over blame.</li>
+      <li><b>Automation</b>: Removing manual toil to increase reliability.</li>
+      <li><b>Lean</b>: Eliminating waste in processes.</li>
+      <li><b>Measurement</b>: Data-driven decisions (metrics, logs).</li>
+      <li><b>Sharing</b>: Feedback loops and cross-functional teams.</li>
+    </ul>
+  </Admonition>
 
-### The Core Pillars (CALMS)
-
-- **Culture**: Empathy and collaboration over blame.
-- **Automation**: Removing manual toil to increase reliability.
-- **Lean**: Eliminating waste in processes.
-- **Measurement**: Data-driven decisions (metrics, logs).
-- **Sharing**: Feedback loops and cross-functional teams.
-
-### The Mindset
-*“You build it, you run it.”* — Werner Vogels (CTO, Amazon)
+  <div class="mt-4">
+    <Admonition color="blue" title="The Mindset" icon="mdi-brain">
+      <p class="italic">“You build it, you run it.”</p>
+      <p class="text-xs text-blue-200 text-right">— Werner Vogels (CTO, Amazon)</p>
+    </Admonition>
+  </div>
 </div>
-<div>
-  <img src="/devops-cycle.png" class="w-full rounded shadow" alt="DevOps Cycle" />
-</div>
+
+::right::
+<div class="ml-4 flex h-full items-center justify-center">
+  <img src="/devops-cycle.png" class="w-full rounded-xl shadow-2xl border flex border-gray-700" alt="DevOps Cycle" />
 </div>
 
 ---
@@ -122,22 +141,32 @@ It is **NOT** just a job title, a specific team, or a set of tools. It is a **cu
 
 The engine that drives DevOps automation.
 
-- **Continuous Integration (CI):**
-  - Developers merge code frequently into a central repository.
-  - Automated builds and tests run on every commit.
-  - *Goal:* Find and fix bugs quicker, improve software quality.
+<div class="grid grid-cols-3 gap-4 mt-8">
+  <Admonition color="blue" title="Continuous Integration" icon="mdi-source-merge">
+    <ul class="space-y-2 mt-2 text-sm pb-2">
+      <li>Developers merge code frequently into a central repository.</li>
+      <li>Automated builds and tests run on every commit.</li>
+      <li class="italic text-blue-200 border-l-2 border-blue-400 pl-2">Goal: Find and fix bugs quicker, improve software quality.</li>
+    </ul>
+  </Admonition>
 
-- **Continuous Delivery (CD):**
-  - Automatically prepare code changes for a release to production.
-  - Deployment is manual (a button click away).
+  <Admonition color="amber" title="Continuous Delivery" icon="mdi-truck-delivery">
+    <ul class="space-y-2 mt-2 text-sm pb-2">
+      <li>Automatically prepare code changes for a release to production.</li>
+      <li class="italic text-amber-200 border-l-2 border-amber-400 pl-2">Deployment is manual (a button click away).</li>
+    </ul>
+  </Admonition>
 
-- **Continuous Deployment (CD):**
-  - Every change that passes all stages of your production pipeline is released to your customers.
-  - *No human intervention.*
+  <Admonition color="emerald" title="Continuous Deployment" icon="mdi-rocket-launch">
+    <ul class="space-y-2 mt-2 text-sm pb-2">
+      <li>Every change that passes all stages of your production pipeline is released to your customers.</li>
+      <li class="italic text-emerald-200 border-l-2 border-emerald-400 pl-2">No human intervention.</li>
+    </ul>
+  </Admonition>
+</div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # ☕ Intermezzo: The "3 AM Production Fire"
@@ -150,24 +179,25 @@ A short story of why DevOps matters.
 
 Before CI/CD and automated tests, releasing software was a terrifying event called "Deployment Night".
 
-<div class="space-y-4 mt-8">
-
-1. **10:00 PM:** Operations team takes the servers offline. Customers see a maintenance page.
-2. **10:30 PM:** Developers hand over a 50-page Word document with installation instructions.
-3. **11:00 PM:** An Ops engineer makes a typo on step 34. The database migration fails.
-4. **1:00 AM:** The team tries to roll back, but the rollback script hasn't been tested in 6 months.
-5. **3:00 AM:** The CEO is awake. The developers are paged. Everyone is sweating.
-6. **7:00 AM:** The site is back up, but a minor bug forces the team to patch it live.
-
+<div class="mt-8 mb-4">
+  <Admonition color="rose" title="Incident Timeline" icon="mdi-fire" customTitle="text-lg">
+    <div class="space-y-4 my-2 text-sm pl-4 relative border-l border-rose-800">
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>10:00 PM:</b> Operations team takes servers offline. Customers see maintenance page.</div>
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>10:30 PM:</b> Developers hand over a 50-page Word doc with install instructions.</div>
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>11:00 PM:</b> Ops engineer makes typo on step 34. Database migration fails.</div>
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>1:00 AM:</b> Team tries to roll back. Rollback script hasn't been tested in 6 months.</div>
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>3:00 AM:</b> CEO is awake. Developers are paged. Everyone is sweating.</div>
+      <div class="relative"><span class="absolute -left-5 bg-rose-500 rounded-full w-2 h-2 mt-1.5"></span><b>7:00 AM:</b> Site is back up, but minor bug forces team to patch live.</div>
+    </div>
+  </Admonition>
 </div>
 
-<div class="mt-8 p-4 bg-red-900 border border-red-500 rounded text-white font-bold text-center">
-  This is why "throw it over the wall" doesn't work. We need automated pipelines, not Word documents.
+<div class="mt-8 text-center text-lg font-bold text-rose-200">
+  This is why "throw it over the wall" doesn't work.<br/>We need automated pipelines, not Word documents.
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 2: Docker Containerization
@@ -198,8 +228,7 @@ Before learning commands, understand the problem Docker solves.
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # A Brief History of Containers
@@ -225,97 +254,100 @@ Docker didn't invent containers. It just made them exceptionally easy to use.
 
 # How Containers Actually Work (Linux Magic)
 
-Docker relies on three fundamental Linux kernel features. If you understand these, you understand containers.
+Docker relies on three fundamental Linux kernel features.
 
-<div class="grid grid-cols-3 gap-4 mt-8">
-<div>
+<div class="grid grid-cols-3 gap-6 mt-12">
+  <Admonition color="blue" title="1. Namespaces" icon="mdi-eye-outline" customTitle="text-sm">
+    <p class="text-xs italic text-blue-200 border-b border-blue-900 pb-2 mb-2">What a container <b>can see</b>.</p>
+    <ul class="text-xs text-gray-300 space-y-2 pb-2">
+      <li><b>PID:</b> Process IDs (Container sees PID 1)</li>
+      <li><b>NET:</b> Network cards, firewall rules</li>
+      <li><b>MNT:</b> Mount points, filesystems</li>
+      <li><b>UTS:</b> Hostnames</li>
+    </ul>
+  </Admonition>
 
-### 1. Namespaces
-What a container **can see**.
-<ul class="text-sm text-gray-400 mt-2 space-y-2">
-  <li>**PID:** Process IDs (Container sees PID 1, Host sees PID 4503)</li>
-  <li>**NET:** Network cards, firewall rules</li>
-  <li>**MNT:** Mount points, filesystems</li>
-  <li>**UTS:** Hostnames</li>
-</ul>
+  <Admonition color="emerald" title="2. Control Groups" icon="mdi-speedometer" customTitle="text-sm">
+    <p class="text-xs italic text-emerald-200 border-b border-emerald-900 pb-2 mb-2">What a container <b>can use</b>.</p>
+    <ul class="text-xs text-gray-300 space-y-2 pb-2">
+      <li>CPU limits (e.g. max 50% of 1 core)</li>
+      <li>Memory limits (e.g. max 512MB RAM)</li>
+      <li>Block I/O limits (Disk speed)</li>
+    </ul>
+  </Admonition>
 
-</div>
-<div>
-
-### 2. Control Groups (Cgroups)
-What a container **can use**.
-<ul class="text-sm text-gray-400 mt-2 space-y-2">
-  <li>CPU limits (e.g. max 50% of 1 core)</li>
-  <li>Memory limits (e.g. max 512MB RAM)</li>
-  <li>Block I/O limits (Disk speed)</li>
-</ul>
-*Prevents one bad container from crashing the whole server.*
-
-</div>
-<div>
-
-### 3. Union File System (UnionFS)
-How an image is **stored**.
-<ul class="text-sm text-gray-400 mt-2 space-y-2">
-  <li>Layered filesystems (Overlay2)</li>
-  <li>Multiple directories are mounted as a single unified view.</li>
-  <li>Enables Docker's lightweight image layers and fast boot times.</li>
-</ul>
-
-</div>
+  <Admonition color="amber" title="3. UnionFS" icon="mdi-layers-outline" customTitle="text-sm">
+    <p class="text-xs italic text-amber-200 border-b border-amber-900 pb-2 mb-2">How an image is <b>stored</b>.</p>
+    <ul class="text-xs text-gray-300 space-y-2 pb-2">
+      <li>Layered filesystems (Overlay2)</li>
+      <li>Directories mounted as a single view</li>
+      <li>Enables lightweight caching & fast boots</li>
+    </ul>
+  </Admonition>
 </div>
 
 ---
 
+---
+layout: two-cols-title
+---
+
 # Virtual Machines vs. Containers
 
-<div class="grid grid-cols-2 gap-8 mt-8 text-center">
-<div>
-  <h3>Virtual Machines</h3>
-  <div class="bg-blue-100 p-4 rounded text-black font-semibold text-sm">App 1 + Bins/Libs + Guest OS (Linux)</div>
-  <div class="bg-blue-100 p-4 rounded text-black font-semibold text-sm mt-2">App 2 + Bins/Libs + Guest OS (Windows)</div>
-  <div class="bg-gray-300 p-2 rounded text-black font-bold mt-2">Hypervisor (VMWare, KVM)</div>
-  <div class="bg-gray-400 p-2 rounded text-black font-bold mt-2">Host Operating System</div>
-  <div class="bg-gray-500 p-2 rounded text-white font-bold mt-2">Server Hardware</div>
+<br/>
 
-  <ul class="text-left mt-4 text-sm mt-8 space-y-2">
-    <li>❌ Heavy (Gigabytes)</li>
-    <li>❌ Slow boot time (Minutes)</li>
-    <li>❌ Wastes resources (dedicates RAM/CPU)</li>
-  </ul>
-</div>
-<div>
-  <h3>Containers</h3>
-  <div class="bg-green-100 p-4 rounded text-black font-semibold text-sm inline-block w-[48%]">App 1 + Bins/Libs</div>
-  <div class="bg-green-100 p-4 rounded text-black font-semibold text-sm inline-block w-[48%] ml-2 mt-[2px]">App 2 + Bins/Libs</div>
-  <div class="bg-blue-500 p-2 rounded text-white font-bold mt-[20px]">Container Engine (Docker)</div>
-  <div class="bg-gray-400 p-2 rounded text-black font-bold mt-[8px]">Host Operating System</div>
-  <div class="bg-gray-500 p-2 rounded text-white font-bold mt-[8px]">Server Hardware</div>
-
-  <ul class="text-left mt-4 text-sm mt-[32px] space-y-2">
-    <li>✅ Lightweight (Megabytes)</li>
-    <li>✅ Instant boot time (Milliseconds)</li>
-    <li>✅ Shares OS kernel (high density)</li>
-  </ul>
-</div>
+::left::
+<div class="mr-4 mt-8">
+  <Admonition color="rose" title="Virtual Machines" icon="mdi-server">
+    <div class="flex flex-col space-y-2 mt-4 text-center items-center">
+      <div class="bg-rose-900/40 p-3 rounded-lg border border-rose-800 text-sm w-4/5 shadow-inner">App 1 + Bins/Libs + Guest OS</div>
+      <div class="bg-rose-900/40 p-3 rounded-lg border border-rose-800 text-sm w-4/5 shadow-inner">App 2 + Bins/Libs + Guest OS</div>
+      <div class="bg-gray-800/80 p-2 rounded border border-gray-600 font-bold text-xs w-4/5">Hypervisor (VMWare, KVM)</div>
+      <div class="bg-gray-800 p-2 rounded border border-gray-600 font-bold text-xs w-full">Host Operating System</div>
+      <div class="bg-black p-2 rounded border border-gray-700 font-bold text-xs w-full">Server Hardware</div>
+    </div>
+    <ul class="text-left mt-8 text-sm space-y-2 pb-4">
+      <li><span class="text-rose-400 font-bold px-1">✕</span> Heavy (Gigabytes)</li>
+      <li><span class="text-rose-400 font-bold px-1">✕</span> Slow boot time (Minutes)</li>
+      <li><span class="text-rose-400 font-bold px-1">✕</span> Dedicated RAM/CPU (Waste)</li>
+    </ul>
+  </Admonition>
 </div>
 
+::right::
+<div class="ml-4 mt-8">
+  <Admonition color="emerald" title="Containers" icon="mdi-docker">
+    <div class="flex flex-col space-y-2 mt-4 items-center text-center relative h-[184px]">
+      <div class="flex w-4/5 gap-2">
+        <div class="bg-emerald-900/40 p-3 rounded-lg border border-emerald-800 text-sm w-1/2 shadow-inner h-full flex items-center justify-center">App 1<br/>Bins</div>
+        <div class="bg-emerald-900/40 p-3 rounded-lg border border-emerald-800 text-sm w-1/2 shadow-inner h-full flex items-center justify-center">App 2<br/>Bins</div>
+      </div>
+      <div class="bg-blue-900/60 p-2 rounded border border-blue-700 font-bold text-xs w-4/5 transform absolute bottom-16">Container Engine (Docker)</div>
+      <div class="bg-gray-800 p-2 rounded border border-gray-600 font-bold text-xs w-full absolute bottom-8">Host Operating System</div>
+      <div class="bg-black p-2 rounded border border-gray-700 font-bold text-xs w-full absolute bottom-0">Server Hardware</div>
+    </div>
+    <ul class="text-left mt-8 text-sm space-y-2 pb-4">
+      <li><span class="text-emerald-400 font-bold px-1">✓</span> Lightweight (Megabytes)</li>
+      <li><span class="text-emerald-400 font-bold px-1">✓</span> Instant boot (Milliseconds)</li>
+      <li><span class="text-emerald-400 font-bold px-1">✓</span> Shares OS kernel (High density)</li>
+    </ul>
+  </Admonition>
+</div>
+
+---
+layout: statement
 ---
 
 # What is Docker?
 
 Docker is the most popular platform to build, share, and run containers.
 
-<v-clicks>
-
-- **Build:** Package your code and dependencies into an immutable "Image".
-- **Share:** Distribute your Image globally via Registries (like Docker Hub).
-- **Run:** Execute the Image as a "Container" locally or in the cloud.
-
-</v-clicks>
-
-<div class="mt-8 p-4 bg-blue-100 rounded text-black text-center font-semibold">
-  Docker standardizes how software is shipped, making implementations perfectly repeatable regardless of the underlying infrastructure.
+<div class="mt-12 text-left">
+  <Admonition color="cyan" title="The Standard" icon="mdi-information-outline" customTitle="text-xl">
+    <p class="text-lg text-center font-semibold mt-4 mb-4">
+      Docker standardizes how software is shipped, making implementations perfectly repeatable regardless of the underlying infrastructure.
+    </p>
+  </Admonition>
 </div>
 
 ---
@@ -407,18 +439,29 @@ How Docker works under the hood.
 
 When you type `docker run`, what *actually* happens? The Docker Engine is not a monolith.
 
-<div class="mt-8 space-y-4 text-sm bg-gray-900 border border-gray-700 p-6 rounded shadow-lg">
+<div class="grid grid-cols-2 gap-4 mt-6">
+  <Admonition color="blue" title="1. dockerd (The Manager)" icon="mdi-account-tie">
+    <p class="text-xs text-blue-100">The permanent background daemon. It handles the REST API, manages images on the disk, and configures networking. But it <i>does not</i> run containers itself.</p>
+  </Admonition>
+  
+  <Admonition color="emerald" title="2. containerd (The Supervisor)" icon="mdi-eye-check">
+    <p class="text-xs text-emerald-100">An industry-standard core container runtime. `dockerd` tells `containerd` what image to run. It manages layers & lifecycle.</p>
+  </Admonition>
 
-1. **`dockerd` (The Manager):** The permanent background daemon. It handles the REST API, manages images on the disk, and configures networking. But it *does not* run containers itself.
-2. **`containerd` (The Supervisor):** An industry-standard core container runtime. `dockerd` tells `containerd` what image to run. `containerd` downloads the image layers and manages the container lifecycle (start, stop, pause).
-3. **`runc` (The Executioner):** The low-level binary that actually talks to the Linux kernel to create Namespaces and Cgroups. `runc` spawns the container process and exits.
-4. **`containerd-shim`:** Because `runc` exits immediately, `containerd-shim` stays glued to the container to keep `stdout/stderr` (logs) open, allowing you to run `docker logs` without `dockerd` crashing.
+  <Admonition color="rose" title="3. runc (The Executioner)" icon="mdi-engine">
+    <p class="text-xs text-rose-100">The low-level binary that actually talks to the Linux kernel to create Namespaces and Cgroups. `runc` spawns the container process and exits.</p>
+  </Admonition>
 
+  <Admonition color="amber" title="4. containerd-shim" icon="mdi-glue">
+    <p class="text-xs text-amber-100">Because `runc` exits immediately, `containerd-shim` stays glued to the container to keep `stdout/stderr` open without crashing.</p>
+  </Admonition>
 </div>
 
-<div class="mt-8 text-center text-gray-400 text-sm">
-  <strong>Why this matters:</strong> If dockerd crashes or restarts, your containers keep running perfectly fine without interruption thanks to containerd-shim!
-</div>
+<v-drag pos="447,214,249,114">
+  <StickyNote color="amber" title="PRO TIP" customTitle="text-lg font-bold">
+    <div class="text-gray-900 mt-2 leading-snug font-medium">Because of containerd-shim, you can actually restart the main dockerd service without killing your containers!</div>
+  </StickyNote>
+</v-drag>
 
 ---
 
@@ -426,35 +469,43 @@ When you type `docker run`, what *actually* happens? The Docker Engine is not a 
 
 By default, Docker containers are isolated. We use "Drivers" to connect them.
 
-<div class="grid grid-cols-2 gap-8 mt-8">
-<div>
+<br/>
 
-<h3 class="text-blue-400 font-bold">1. bridge (The Default)</h3>
+::left::
+<div class="mr-4 mt-8 space-y-6">
+  <Admonition color="blue" title="1. bridge (The Default)" icon="mdi-bridge">
+    <ul class="text-xs text-blue-100 mt-2 space-y-2">
+      <li>Creates a private, internal virtual network inside the host.</li>
+      <li>Containers talk via internal DNS hostname.</li>
+      <li><b>Port Mapping</b> is required for external traffic.</li>
+    </ul>
+  </Admonition>
 
-- Creates a private, internal virtual network inside the host.
-- Containers on the same bridge can talk via internal DNS hostname.
-- **Port Mapping (`-p 8080:80`)** is required to allow external traffic through the host firewall.
-
-<h3 class="text-green-400 font-bold mt-4">2. host</h3>
-
-- Removes all network isolation entirely. The container shares the host's networking namespace.
-- **Use Case:** Extreme performance software (e.g. High-Frequency Trading API) that cannot afford the 1ms latency penalty of a virtual network hop.
-
+  <Admonition color="emerald" title="2. host" icon="mdi-server-network">
+    <ul class="text-xs text-emerald-100 mt-2 space-y-2">
+      <li>Removes all network isolation entirely.</li>
+      <li>Container shares the host's networking namespace.</li>
+      <li><b>Use Case:</b> Extreme performance (High-Freq Trading).</li>
+    </ul>
+  </Admonition>
 </div>
-<div>
 
-<h3 class="text-gray-400 font-bold">3. none</h3>
+::right::
+<div class="ml-4 mt-8 space-y-6">
+  <Admonition color="gray" title="3. none" icon="mdi-cancel">
+    <ul class="text-xs text-gray-300 mt-2 space-y-2">
+      <li>Container receives a loopback interface (`localhost`) and nothing else.</li>
+      <li><b>Use Case:</b> Absolute air-gapped system.</li>
+    </ul>
+  </Admonition>
 
-- The container receives a loopback interface (`localhost`) and literally nothing else. Cannot reach the internet, cannot reach other containers.
-- **Use Case:** Creating an absolute air-gapped system to securely process cryptographic keys without fear of data exfiltration.
-
-<h3 class="text-purple-400 font-bold mt-4">4. macvlan</h3>
-
-- Bypasses virtual bridges completely and assigns the container a MAC address directly on your physical office/data-center network.
-- The container appears as an independent physical computer to your actual router.
-- **Use Case:** Legacy applications that expect to be directly attached to a physical VLAN and broadcast their own IP.
-
-</div>
+  <Admonition color="purple" title="4. macvlan" icon="mdi-router-wireless">
+    <ul class="text-xs text-purple-100 mt-2 space-y-2">
+      <li>Bypasses bridges completely. Assigns a MAC address directly on physical network.</li>
+      <li>Appears as independent physical PC.</li>
+      <li><b>Use Case:</b> Legacy apps needing physical VLAN.</li>
+    </ul>
+  </Admonition>
 </div>
 
 ---
@@ -874,8 +925,7 @@ volumes:
 ```
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 4: Kubernetes Introduction
@@ -888,47 +938,53 @@ Orchestrating containers at scale
 
 Docker Compose is great for local development. But what about production?
 
-<v-clicks>
+<div class="mt-8 flex justify-center">
+  <Admonition color="blue" title="Production Challenges" icon="mdi-head-question-outline" customTitle="text-lg">
+    <ul class="mt-4 space-y-4 list-none pl-2 pb-2 text-blue-100">
+      <li v-click><Icon icon="mdi-alert-circle-outline" class="text-blue-400 inline"/> What happens if a container crashes at 3 AM? <em class="text-emerald-400 pl-2">(Self-healing)</em></li>
+      <li v-click><Icon icon="mdi-chart-line-variant" class="text-blue-400 inline"/> What if web traffic spikes by 1000%? <em class="text-emerald-400 pl-2">(Auto-scaling)</em></li>
+      <li v-click><Icon icon="mdi-update" class="text-blue-400 inline"/> How do we deploy without downtime? <em class="text-emerald-400 pl-2">(Rolling Updates)</em></li>
+      <li v-click><Icon icon="mdi-transit-connection-variant" class="text-blue-400 inline"/> How do containers talk to each other? <em class="text-emerald-400 pl-2">(Service Discovery)</em></li>
+      <li v-click><Icon icon="mdi-lock-outline" class="text-blue-400 inline"/> How do we securely store passwords? <em class="text-emerald-400 pl-2">(Secret Management)</em></li>
+    </ul>
+  </Admonition>
+</div>
 
-- What happens if a container crashes at 3 AM? *(Self-healing)*
-- What if web traffic spikes by 1000%? *(Auto-scaling)*
-- How do we deploy a new version without downtime? *(Rolling Updates)*
-- How do containers on different servers talk to each other? *(Networking & Service Discovery)*
-- Where do we securely store database passwords? *(Secret Management)*
-
-</v-clicks>
-
-<div v-click class="mt-8 text-2xl font-bold text-blue-500 text-center">
-  Kubernetes (K8s) solves all of these problems.
+<div v-click class="mt-8 text-2xl font-bold text-center bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent transform scale-105 transition-transform duration-500">
+  Kubernetes (K8s) solves all of these problems automatically.
 </div>
 
 ---
 
-# Kubernetes Architecture overview
+# Kubernetes Architecture 
 
-<div class="grid grid-cols-5 gap-4">
-<div class="col-span-2">
-<br/>
+<div class="grid grid-cols-2 gap-8 mt-6">
+  <div class="space-y-4 flex flex-col justify-center">
+    <Admonition color="blue" title="Control Plane (The Brains)" icon="mdi-brain">
+      <ul class="text-xs space-y-2 mt-2 text-blue-100">
+        <li><b>API Server:</b> The front-end (receives `kubectl` commands).</li>
+        <li><b>etcd:</b> Distributed key-value store (the cluster's memory/state).</li>
+        <li><b>Scheduler:</b> Decides which node a new Pod should go to.</li>
+        <li><b>Controller Manager:</b> Maintains desired state (e.g., "keep 3 replicas").</li>
+      </ul>
+    </Admonition>
 
-**Control Plane (The Brains):**
-- **API Server:** The front-end (receives `kubectl` commands).
-- **etcd:** Distributed key-value store (the cluster's memory/state).
-- **Scheduler:** Decides which node a new Pod should go to.
-- **Controller Manager:** Maintains desired state (e.g., "keep 3 replicas running").
+    <Admonition color="emerald" title="Worker Nodes (The Muscle)" icon="mdi-arm-flex-outline">
+      <ul class="text-xs space-y-2 mt-2 text-emerald-100">
+        <li><b>Kubelet:</b> The agent that talks to the API Server.</li>
+        <li><b>Kube-Proxy:</b> Handles networking and load-balancing.</li>
+        <li><b>Container Runtime:</b> Docker, containerd.</li>
+      </ul>
+    </Admonition>
+  </div>
 
-**Worker Nodes (The Muscle):**
-- **Kubelet:** The agent that talks to the API Server.
-- **Kube-Proxy:** Handles networking networking.
-- **Container Runtime:** Docker, containerd.
-</div>
-<div class="col-span-3">
-  <img src="/k8s-architecture.png" class="w-full rounded shadow" alt="K8s Architecture" />
-</div>
+  <div class="flex items-center justify-center">
+    <img src="/k8s-architecture.png" class="w-full rounded-xl shadow-2xl border border-blue-900 glow-blue-500/50" alt="K8s Architecture" />
+  </div>
 </div>
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 5: YAML Manifests
@@ -989,8 +1045,7 @@ spec:
 ```
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Section 6: ConfigMap & Secret
@@ -1053,8 +1108,7 @@ When injected as an environment variable, K8s decodes it for the container:
 ```
 
 ---
-layout: center
-class: text-center
+layout: section
 ---
 
 # Final Hands-on Exercise
