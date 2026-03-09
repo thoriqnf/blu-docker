@@ -1,0 +1,47 @@
+# ===========================================
+# Ingress Demo
+# Demonstrates both Host-based and Path-based routing
+# ===========================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # Useful for minikube if treating ingress as nodeport
+spec:
+  ingressClassName: nginx
+  rules:
+    # 1. Host-based routing (Different Domains)
+    - host: api.devops.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: todo-api-service
+                port:
+                  number: 8080
+
+    - host: store.devops.local
+      http:
+        paths:
+          # 2. Path-based routing (Same domain, different paths)
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 80
+          
+          - path: /checkout
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 8080

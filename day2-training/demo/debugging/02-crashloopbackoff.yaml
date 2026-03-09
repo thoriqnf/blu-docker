@@ -1,0 +1,36 @@
+# ==============================================================
+# DEBUGGING DEMO 2: CrashLoopBackOff
+# ==============================================================
+# Run: `kubectl apply -f 02-crashloopbackoff.yaml`
+# Run: `kubectl get pods -w` (Watch it restart continuously)
+# Run: `kubectl logs <pod-name>` (See the fatal error message)
+# Run: `kubectl logs <pod-name> --previous` (See why it died last time)
+#
+# Fix: Remove 'exit 1' or fix the script logic
+# ==============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-crashloop
+  labels:
+    app: crashing-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crashing-app
+  template:
+    metadata:
+      labels:
+        app: crashing-app
+    spec:
+      containers:
+        - name: crasher
+          image: busybox:latest
+          # INTENTIONAL BUG: The container starts, prints an error, and immediately crashes (exit 1).
+          # Kubernetes will try to restart it automatically forever.
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "echo 'Starting application...'; sleep 3; echo 'FATAL ERROR: Cannot connect to DB!'; exit 1"

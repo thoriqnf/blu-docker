@@ -1,0 +1,69 @@
+# ===========================================
+# Docker Compose — Todo App + PostgreSQL
+# ===========================================
+# Usage:
+#   docker compose up -d        (start in background)
+#   docker compose logs -f      (follow logs)
+#   docker compose down -v      (stop & remove volumes)
+# ===========================================
+
+services:
+  # ---------- PostgreSQL Database ----------
+  postgres:
+    image: postgres:16-alpine
+    container_name: todo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tododb
+      POSTGRES_USER: todouser
+      POSTGRES_PASSWORD: todopass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todouser -d tododb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ---------- Todo API (Spring Boot) ----------
+  todo-app:
+    build:
+      context: ./todo-app
+      dockerfile: Dockerfile
+    container_name: todo-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database connection (matches postgres service above)
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: tododb
+      DB_USERNAME: todouser
+      DB_PASSWORD: todopass123
+      # Application settings
+      APP_NAME: "Todo API"
+      APP_VERSION: "1.0.0"
+      APP_ENV: docker
+      SERVER_PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+# ---------- Networks ----------
+networks:
+  todo-network:
+    driver: bridge
+    name: todo-network
+
+# ---------- Volumes ----------
+volumes:
+  postgres_data:
+    driver: local

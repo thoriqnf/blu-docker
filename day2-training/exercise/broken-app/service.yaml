@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-store-service
+spec:
+  type: ClusterIP
+  selector:
+    # INTENTIONAL BUG 2: Label mismatch.
+    # The pods have label `app: e-commerce`. This searches for `app: e-shop`.
+    # Result: `Endpoints: <none>`
+    app: e-shop
+  ports:
+    - protocol: TCP
+      port: 80           # Service port
+      targetPort: 8080    # Pod port

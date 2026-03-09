@@ -1,0 +1,14 @@
+# Write your Docker Compose here!
+# You need 3 services: postgres, redis, notes-app
+# Refer to the README.md for all required configuration.
+
+services:
+  # Your services go here...
+  postgres:
+    # TODO
+
+  redis:
+    # TODO
+
+  notes-app:
+    # TODO

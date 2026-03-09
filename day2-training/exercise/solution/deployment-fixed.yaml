@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-store-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: e-commerce
+  template:
+    metadata:
+      labels:
+        app: e-commerce
+    spec:
+      containers:
+        - name: web
+          image: busybox:latest
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              if [ -z "$DB_PASSWORD" ]; then
+                echo "FATAL: Database connection failed. DB_PASSWORD is missing!"
+                exit 1
+              fi
+              echo "Connected to DB. Starting web server..."
+              tail -f /dev/null
+          env:
+            # FIX 1: Renamed variable to exactly what the app script expects
+            - name: DB_PASSWORD
+              value: "supersecret123"

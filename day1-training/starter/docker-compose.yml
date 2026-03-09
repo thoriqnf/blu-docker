@@ -1,0 +1,74 @@
+# ===========================================
+# Starter Docker Compose — Complete the TODOs!
+# ===========================================
+# This will set up:
+#   1. PostgreSQL database
+#   2. Todo API (Spring Boot)
+#
+# Your task: Fill in the missing configuration
+# to get both services running together.
+# ===========================================
+
+services:
+  # ---------- PostgreSQL Database ----------
+  postgres:
+    image: postgres:16-alpine
+    container_name: todo-postgres
+    # TODO 1: Add environment variables for PostgreSQL
+    # Hint: You need POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+    # Use these values: tododb, todouser, todopass123
+    environment:
+      # Write your environment variables below:
+      POSTGRES_DB: # ???
+      POSTGRES_USER: # ???
+      POSTGRES_PASSWORD: # ???
+    # TODO 2: Expose PostgreSQL port
+    # Hint: Map port 5432 to 5432
+    ports:
+      - # ???
+    # TODO 3: Add a named volume for data persistence
+    # Hint: Mount to /var/lib/postgresql/data
+    volumes:
+      - # ???
+    # TODO 4: Connect to the network
+    # Hint: Use "todo-network"
+    networks:
+      - # ???
+
+  # ---------- Todo API (Spring Boot) ----------
+  todo-app:
+    # TODO 5: Build from the Dockerfile
+    # Hint: The build context is the current directory "."
+    build: # ???
+    container_name: todo-app
+    # TODO 6: Map the application port
+    # Hint: The app runs on port 8080
+    ports:
+      - # ???
+    # TODO 7: Add environment variables for the app
+    # Hint: The app needs DB_HOST, DB_PORT, DB_NAME,
+    #       DB_USERNAME, DB_PASSWORD, APP_NAME
+    # Important: DB_HOST should be the service name "postgres"
+    environment:
+      DB_HOST: # ???
+      DB_PORT: # ???
+      DB_NAME: # ???
+      DB_USERNAME: # ???
+      DB_PASSWORD: # ???
+      APP_NAME: "Todo API"
+    # TODO 8: Add a dependency on postgres
+    # Hint: Use depends_on with condition: service_started
+    depends_on:
+      - # ???
+    # TODO 9: Connect to the same network as postgres
+    networks:
+      - # ???
+
+# TODO 10: Define the network
+# Hint: Use bridge driver
+networks:
+  # ???
+
+# TODO 11: Define the volume for postgres data
+volumes:
+  # ???

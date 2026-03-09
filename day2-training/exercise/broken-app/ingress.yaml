@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-store-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: store.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # INTENTIONAL BUG 3: Typo in service name
+                name: my-store-svc
+                port:
+                  # INTENTIONAL BUG 4: Wrong port. 
+                  # It should point to the Service's `port` (80), not the Pod's `targetPort` (8080).
+                  number: 8080

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-store-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: store.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # FIX 3: Corrected service name 
+                name: my-store-service
+                port:
+                  # FIX 4: Corrected port to point to the Service's `port` (80), not `targetPort`
+                  number: 80

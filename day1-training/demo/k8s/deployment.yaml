@@ -1,0 +1,79 @@
+# ===========================================
+# Deployment — Todo API Application
+# ===========================================
+# Manages the desired state of the Todo App pods.
+# References ConfigMap and Secret for configuration.
+# ===========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+  namespace: todo-app
+  labels:
+    app: todo
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo
+      component: api
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: api
+    spec:
+      containers:
+        - name: todo-app
+          image: todo-app:1.0.0
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          # --- Environment from ConfigMap ---
+          envFrom:
+            - configMapRef:
+                name: todo-app-config
+
+          # --- Environment from Secret ---
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: todo-app-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-app-secret
+                  key: DB_PASSWORD
+
+          # --- Resource Limits (Best Practice) ---
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          # --- Health Checks ---
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+      # --- Graceful Shutdown ---
+      terminationGracePeriodSeconds: 30

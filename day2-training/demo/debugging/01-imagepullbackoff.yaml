@@ -1,0 +1,32 @@
+# ==============================================================
+# DEBUGGING DEMO 1: ImagePullBackOff
+# ==============================================================
+# Run: `kubectl apply -f 01-imagepullbackoff.yaml`
+# Run: `kubectl get pods` (Observe the ErrImagePull status)
+# Run: `kubectl describe pod <pod-name>` (Scroll to events to see the 404 error)
+#
+# Fix: Change image from 'nginx:does-not-exist' to 'nginx:alpine'
+# ==============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-imagepull-error
+  labels:
+    app: bad-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bad-image
+  template:
+    metadata:
+      labels:
+        app: bad-image
+    spec:
+      containers:
+        - name: web
+          # INTENTIONAL BUG: This image tag does not exist on DockerHub
+          image: nginx:does-not-exist-v1234
+          ports:
+            - containerPort: 80
