@@ -42,8 +42,8 @@ What we will cover in this session:
       <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 1:</b> The DevOps Cultural Shift</li>
       <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 2:</b> Containerization with Docker</li>
       <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 3:</b> Docker Deep Dive (Networking & storage)</li>
-      <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 4:</b> Journey to <b>Kubernetes (K8s)</b></li>
-      <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 5:</b> Deploying to the Cluster</li>
+      <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 4:</b> Docker Configuration & Secrets</li>
+      <li><mdi-check-circle-outline class="text-slate-500 inline mr-2"/> <b>Section 5:</b> Introduction to Kubernetes (K8s)</li>
     </ul>
   </Admonition>
 </div>
@@ -88,33 +88,152 @@ Before DevOps, Dev and Ops teams worked in silos, creating friction.
 </div>
 
 ---
-layout: two-cols-title
+layout: section
+---
+
+# The C.A.L.M.S. Framework
+The Core Pillars of DevOps
+
 ---
 
 # What is DevOps?
 
-::left::
-
 <div class="mt-12 space-y-6">
-  <Admonition color="slate" title="The Core Pillars (CALMS)" icon="mdi-pillar" customTitle="text-lg">
-    <ul class="text-xs space-y-2 text-slate-200">
-      <li><b>Culture:</b> People over tools</li>
-      <li><b>Automation:</b> Eliminate toil</li>
-      <li><b>Lean:</b> Small batches, fast flow</li>
-      <li><b>Measurement:</b> Use data to decide</li>
-      <li><b>Sharing:</b> Break the silos</li>
-    </ul>
+  <Admonition color="slate" title="The Overarching Framework" icon="mdi-shield-check" customTitle="text-lg">
+    <p class="text-xs text-slate-200">
+      DevOps is not just tools. It is a <b>Cultural and Professional movement</b> that stresses communication, collaboration, integration, and automation.
+    </p>
   </Admonition>
 
-  <Admonition color="slate" title="The Mindset" icon="mdi-brain">
-    <p class="italic text-xs text-slate-200">"Quality is everyone's responsibility."</p>
+  <Admonition color="blue" title="The C.A.L.M.S. Model" icon="mdi-pillar">
+    <p class="text-xs text-slate-200">
+      A conceptual framework for assessing an organization's ability to adopt DevOps processes.
+    </p>
   </Admonition>
 </div>
 
-::right::
+<div class="flex flex-col items-center justify-center mt-4">
+  <img src="/calms.png" class="w-full max-w-sm rounded" />
+  <p class="text-[10px] text-slate-400 mt-4 italic">The Infinite Feedback Loop</p>
+</div>
 
-<div class="flex items-center justify-center h-full">
-  <img src="/blueprint_devops_cycle.png" class="w-64 opacity-80" />
+---
+layout: default
+---
+
+# 1. C is for Culture
+
+DevOps starts with people, not products.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <Admonition color="slate" title="People Over Tools" icon="mdi-account-group">
+    <ul class="text-xs space-y-2 text-slate-200">
+      <li><b>Shared Responsibility:</b> Dev and Ops own the service together.</li>
+      <li><b>Psychological Safety:</b> No-blame post-mortems.</li>
+      <li><b>Breaking Silos:</b> Direct communication instead of "ticket tossing".</li>
+    </ul>
+  </Admonition>
+  
+  <div class="flex items-center justify-center bg-slate-800/20 rounded p-4 border border-slate-700">
+    <p class="text-sm italic text-center">"Culture eats strategy for breakfast."<br/>— Peter Drucker</p>
+  </div>
+</div>
+
+---
+layout: default
+---
+
+# 2. A is for Automation
+
+Eliminate "Toil" to focus on value.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <div class="space-y-4">
+    <Admonition color="blue" title="What to Automate?" icon="mdi-robot">
+      <ul class="text-xs space-y-2 text-slate-200">
+        <li><b>CI/CD Pipelines:</b> Test and deploy every commit.</li>
+        <li><b>Infrastructure:</b> Treat servers as code (Terraform/Ansible).</li>
+        <li><b>Testing:</b> Unit, Integration, and Security scans.</li>
+      </ul>
+    </Admonition>
+  </div>
+
+  <Admonition color="slate" title="The Goal" icon="mdi-target">
+    <p class="text-xs text-slate-200">
+      Automation creates <b>repeatability</b> and <b>predictability</b>. If a task must be done twice, automate it.
+    </p>
+  </Admonition>
+</div>
+
+---
+layout: default
+---
+
+# 3. L is for Lean
+
+Focus on efficiency and flow.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <Admonition color="green" title="Lean Principles" icon="mdi-leaf">
+    <ul class="text-xs space-y-2 text-slate-200">
+      <li><b>Small Batches:</b> Deploy 5 files, not 500. Easier to debug!</li>
+      <li><b>Reduce Waste:</b> Remove manual approvals and wait times.</li>
+      <li><b>Visualize Work:</b> Use Kanban boards to see bottlenecks.</li>
+    </ul>
+  </Admonition>
+
+  <div class="flex items-center justify-center p-4">
+     <mdi-speedometer class="text-6xl text-green-400 opacity-50" />
+     <p class="ml-4 text-sm font-bold">Fast Flow = Fast Feedback</p>
+  </div>
+</div>
+
+---
+layout: default
+---
+
+# 4. M is for Measurement
+
+You can't improve what you can't measure.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <Admonition color="rose" title="Key Data Points" icon="mdi-chart-line">
+    <ul class="text-xs space-y-2 text-slate-200">
+      <li><b>DORA Metrics:</b> Deployment Frequency, Lead Time for Changes.</li>
+      <li><b>Stability:</b> Change Failure Rate, Time to Restore (MTTR).</li>
+      <li><b>Quality:</b> Automated test coverage and bug counts.</li>
+    </ul>
+  </Admonition>
+
+  <Admonition color="slate" title="Feedback Loops" icon="mdi-refresh">
+    <p class="text-xs text-slate-200 leading-relaxed font-italic">
+      Data provides the <b>truth</b> needed to decide what to automate or fix next.
+    </p>
+  </Admonition>
+</div>
+
+---
+layout: default
+---
+
+# 5. S is for Sharing
+
+The final pillar: Total Transparency.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <div class="space-y-4">
+    <Admonition color="orange" title="Knowledge Transfer" icon="mdi-share-variant">
+      <ul class="text-xs space-y-2 text-slate-200">
+        <li><b>Open Documentation:</b> No "hidden knowledge".</li>
+        <li><b>Pairing:</b> Dev and Ops working together.</li>
+        <li><b>Open Source Mindset:</b> Share tools and scripts internally.</li>
+      </ul>
+    </Admonition>
+  </div>
+
+  <div class="flex items-center justify-center bg-orange-400/10 rounded p-6 border border-orange-400/30">
+    <p class="text-sm font-bold text-center text-orange-200">Sharing transforms individual brilliance into organizational capability.</p>
+  </div>
 </div>
 
 ---
@@ -138,7 +257,7 @@ The engine that drives DevOps automation.
     </ul>
   </Admonition>
 
-  <Admonition color="sky" title="Continuous Deployment" icon="mdi-rocket-launch">
+  <Admonition color="slate" title="Continuous Deployment" icon="mdi-rocket-launch">
     <ul class="space-y-2 mt-2 text-xs pb-2 text-slate-200">
       <li>Every change that passes all stages is released automatically.</li>
       <li>No human intervention required.</li>
@@ -161,12 +280,24 @@ A short story of why DevOps matters.
 Before CI/CD and automated tests, releasing software was a terrifying event called "Deployment Night".
 
 <div class="mt-8 mb-4">
-  <Admonition color="sky" title="Incident Timeline" icon="mdi-fire" customTitle="text-lg">
-    <div class="flex flex-col space-y-2 mt-4 text-xs font-mono text-slate-200">
-      <div v-click class="flex items-center gap-2"><div class="w-16 text-slate-500">03:00 AM</div> <div class="p-1 px-2 bg-slate-800 rounded border border-slate-700">App crashes in Prod</div></div>
-      <div v-click class="flex items-center gap-2"><div class="w-16 text-slate-500">03:15 AM</div> <div class="p-1 px-2 bg-slate-800 rounded border border-slate-700 italic">PagerDuty wakes up a tired engineer</div></div>
-      <div v-click class="flex items-center gap-2"><div class="w-16 text-slate-500">03:45 AM</div> <div class="p-1 px-2 bg-slate-800 rounded border border-slate-700">Manually restarting everything...</div></div>
-      <div v-click class="flex items-center gap-2 font-bold text-sky-400 mt-2"><div class="w-16">Result</div> <div>Loss of sleep, high stress, and business downtime.</div></div>
+  <Admonition color="slate" title="Incident Timeline" icon="mdi-fire" customTitle="text-lg">
+    <div class="flex flex-col space-y-4 mt-6 text-sm font-mono">
+      <div v-click class="flex items-center gap-4">
+        <div class="w-20 font-bold text-slate-300">03:00 AM</div> 
+        <div class="p-2 px-3 bg-slate-800/80 rounded border border-slate-700 w-full text-slate-200">App crashes in Prod</div>
+      </div>
+      <div v-click class="flex items-center gap-4">
+        <div class="w-20 font-bold text-slate-300">03:15 AM</div> 
+        <div class="p-2 px-3 bg-slate-800/80 rounded border border-slate-700 italic w-full text-slate-200">PagerDuty wakes up a tired engineer</div>
+      </div>
+      <div v-click class="flex items-center gap-4">
+        <div class="w-20 font-bold text-slate-300">03:45 AM</div> 
+        <div class="p-2 px-3 bg-slate-800/80 rounded border border-slate-700 w-full text-slate-200">Manually restarting everything...</div>
+      </div>
+      <div v-click class="flex items-center gap-4 pt-4 border-t border-slate-700/50">
+        <div class="w-20 font-bold text-rose-400 text-lg uppercase">Result</div> 
+        <div class="text-rose-100 font-bold italic">Loss of sleep, high stress, and business downtime.</div>
+      </div>
     </div>
   </Admonition>
 </div>
@@ -235,15 +366,11 @@ layout: two-cols-title
 
 # How Containers Actually Work
 
-::left::
-
 <div class="mt-8">
   <Admonition color="slate" title="1. Namespaces" icon="mdi-eye-outline" customTitle="text-sm">
     <p class="text-[10px] text-slate-200">Isolation of resources (Process, Network, User)</p>
   </Admonition>
 </div>
-
-::right::
 
 <div class="mt-8 space-y-4">
   <Admonition color="slate" title="2. Control Groups" icon="mdi-speedometer" customTitle="text-sm">
@@ -261,8 +388,6 @@ layout: two-cols-title
 
 # Virtual Machines vs. Containers
 
-::left::
-
 <div class="mt-8">
   <Admonition color="slate" title="Virtual Machines" icon="mdi-server">
     <ul class="text-xs space-y-2 text-slate-200">
@@ -274,10 +399,8 @@ layout: two-cols-title
   </Admonition>
 </div>
 
-::right::
-
 <div class="mt-8">
-  <Admonition color="sky" title="Containers" icon="mdi-docker">
+  <Admonition color="slate" title="Containers" icon="mdi-docker">
     <ul class="text-xs space-y-2 text-slate-200">
       <li>Fast startup (seconds)</li>
       <li>Low overhead (MBs of RAM)</li>
@@ -295,10 +418,18 @@ layout: fact
 ## What is the main difference between a VM and a Container in terms of the Operating System?
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   Containers share the <b>Host OS Kernel</b>, while VMs include a full <b>Guest OS</b>.
 </Admonition>
 </v-click>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 01
+## Hello World
+Goal: Sanity check the Docker installation and run our first container.
 
 ---
 layout: default
@@ -345,9 +476,24 @@ Run a test container:
 ```bash
 $ docker run hello-world
 ```
-*If you see "Hello from Docker!", it's working!*
 
 </div>
+</div>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 02
+## Nginx Basic
+Goal: Learn port mapping and background (-d) execution.
+
+---
+layout: default
+---
+
+<div class="mt-4 text-center">
+  <p class="italic text-sm text-slate-400">*If you see "Hello from Docker!", it's working!*</p>
 </div>
 
 ---
@@ -406,10 +552,26 @@ layout: fact
 ## True or False: Docker Image layers are read-only.
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   <b>True!</b> Every layer is a read-only snapshot. Only the top "Container Layer" is writable.
 </Admonition>
 </v-click>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 03
+## Simple Dockerfile
+Goal: Build a custom image from a Node.js source.
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 04
+## Dockerfile Optimization
+Goal: Compare "bad" vs "good" layer orders to see caching in action.
 
 ---
 
@@ -516,11 +678,11 @@ layout: default
 # Dockerfile: Key Instructions (Part 2)
 
 <div class="grid grid-cols-2 gap-4 text-[10px] mt-6">
-  <Admonition color="sky" title="COPY vs ADD" icon="mdi-file-move">
+  <Admonition color="slate" title="COPY vs ADD" icon="mdi-file-move">
     <b>COPY:</b> Moves files from host to image. <br/> 
     <b>ADD:</b> Similar, but can extract tarballs and fetch URLs. (Use COPY unless you need extract).
   </Admonition>
-  <Admonition color="sky" title="ENV vs ARG" icon="mdi-variable">
+  <Admonition color="slate" title="ENV vs ARG" icon="mdi-variable">
     <b>ENV:</b> Available both at build time and inside the running container. <br/>
     <b>ARG:</b> Only available during the build process.
   </Admonition>
@@ -574,7 +736,7 @@ $ docker logs --tail 50 -f <container_id>
 Docker runs on layers, caching, and hidden networks. It will quickly eat up dozens of gigabytes of disk space if left unchecked.
 
 <div class="mt-8">
-  <Admonition color="sky" title="The Magic Cleanup Command" icon="mdi-broom" customTitle="text-lg">
+  <Admonition color="slate" title="The Magic Cleanup Command" icon="mdi-broom" customTitle="text-lg">
     <div class="bg-slate-900 p-2 my-2 rounded font-mono text-sm leading-none inline-block">docker system prune</div>
     <div class="text-xs text-slate-200 mt-2">
       This safely deletes everything that is not actively running:<br/>
@@ -616,7 +778,7 @@ By default, Docker containers are isolated. We use "Drivers" to connect them.
     <p class="text-xs text-slate-200">Creates a private internal network on the host. Containers talk via IP or name. Most common for stand-alone containers.</p>
   </Admonition>
 
-  <Admonition color="sky" title="2. host" icon="mdi-server-network">
+  <Admonition color="slate" title="2. host" icon="mdi-server-network">
     <p class="text-xs text-slate-200">Removes network isolation between container and host. Container uses host's IP directly (No port mapping needed).</p>
   </Admonition>
 </div>
@@ -678,7 +840,7 @@ layout: fact
 ## Which command should you use to copy a .tar.gz and automatically extract it?
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   <b>ADD</b>. (But use COPY for everything else!)
 </Admonition>
 </v-click>
@@ -761,36 +923,72 @@ layout: fact
 ## Which instruction is easily overridden when you run `docker run my-image <command>`?
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   <b>CMD</b>. The new command replaces whatever was in CMD.
 </Admonition>
 </v-click>
 
 ---
+layout: fact
+---
 
-# Dockerfile Best Practices & Caching
+# 📺 LIVE DEMO 05
+## Multi-Stage Build
+Goal: Use two stages to ship a tiny 30MB JAR image instead of 600MB SDK.
 
-Docker images are built strictly layer-by-layer, from top to bottom.
+---
 
-1. **Each instruction (`RUN`, `COPY`, `ADD`) creates a new Layer.**
-   - If Layer 2 changes, Docker has to rebuild Layer 2, Layer 3, Layer 4, etc.
-   - Therefore, put instructions that change frequently (like copying source code) at the **BOTTOM** of the file.
+# Dockerfile Best Practices: Caching
 
-2. **The classic Node.js caching trick:**
-   ```dockerfile
-   # BAD: Re-downloads all NPM packages every time you edit a single line of code!
+Docker images are built strictly layer-by-layer. Efficiency comes from reusing these layers.
+
+1. **Layer Sensitivity:**
+   - Instructions like `RUN`, `COPY`, and `ADD` create layers.
+   - If a layer changes, **all subsequent layers** must be rebuilt.
+   - **Rule:** Put stable instructions at the top, and frequent changes (code) at the **BOTTOM**.
+
+2. **The Dependency Cache Trick (Node.js Example):**
+   ```dockerfile {all|2-3|5-7|all}
+   # BAD: Re-downloads EVERYTHING if any file changes
    COPY . /app
    RUN npm install
-   
-   # GOOD: Only re-downloads NPM packages if package.json actually changed.
+
+   # GOOD: Only re-installs if package.json changes
    COPY package*.json /app/
    RUN npm install
    COPY . /app
    ```
 
-3. **Use `.dockerignore`:** 
-   - Never copy your local `node_modules` or `.git` folder into the image. It bloats the image by gigabytes and overwrites Linux binaries with Mac binaries.
+---
 
+# Dockerfile Best Practices: .dockerignore
+
+A `.dockerignore` file is just as important as a `.gitignore` file.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### Why use it?
+- **Speed:** Sends less data to the Docker daemon (smaller build context).
+- **Security:** Prevents shipping sensitive files (e.g., `.env`, `keys.pem`).
+- **Consistency:** Prevents Windows/Mac binaries (like `node_modules`) from overwriting Linux binaries inside the container.
+
+</div>
+<div>
+
+### What to ignore?
+```text
+.git
+node_modules
+dist
+*.log
+.env
+Dockerfile
+.dockerignore
+```
+
+</div>
+</div>
 ---
 
 # Security: Running as Non-Root
@@ -898,12 +1096,41 @@ ENTRYPOINT ["/my-api"]
 layout: fact
 ---
 
+# 📺 LIVE DEMO 06
+## Persistence
+Goal: Use Bind Mounts for live-reloading an Nginx index page.
+
+---
+layout: fact
+---
+
 # 🧠 Quick Check!
 ## Which mount type is best for live-reloading code during development?
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   <b>Bind Mounts</b> (mapping a host folder directly).
+</Admonition>
+</v-click>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 07
+## Networking
+Goal: Inspect the difference between bridge and host network drivers.
+
+---
+layout: fact
+---
+
+# 🧠 Quick Check!
+## What is the default networking driver in Docker?
+
+<v-click>
+<Admonition color="slate" title="Answer" icon="mdi-check">
+  <b>Bridge Network</b>.
 </Admonition>
 </v-click>
 
@@ -911,28 +1138,44 @@ layout: fact
 
 # The 4 Types of Docker Mounts
 
-Docker actually provides four distinct ways to manage state.
+Docker provides four distinct ways to manage state and persistence.
 
-<div class="grid grid-cols-2 gap-4 mt-6 text-sm flex items-stretch">
-<div class="bg-slate-800/40 p-4 border border-slate-700 rounded block h-full">
-<h3 class="text-slate-300 text-sm font-bold">1. Named Volumes (The Best)</h3>
-<p class="text-[10px] mt-2 text-slate-400">Managed by Docker. Stored in `/var/lib/docker/volumes/`. Persistence for databases.</p>
-</div>
+<div class="grid grid-cols-2 gap-6 mt-6">
+  <div class="bg-slate-800/50 p-4 border border-blue-500/30 rounded-xl hover:bg-slate-800/80 transition-all duration-300">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="p-2 bg-blue-500/10 rounded-lg"><mdi-database class="text-blue-400 text-xl" /></div>
+      <h3 class="text-blue-200 font-bold">1. Named Volumes</h3>
+    </div>
+    <p class="text-[10px] text-slate-300 leading-relaxed mb-3">Managed entirely by Docker. Stored in a hidden system directory. Safest for production.</p>
+    <div class="text-[9px] bg-blue-500/10 text-blue-300 px-2 py-1 rounded inline-block font-bold mt-auto">BEST FOR: Production Databases</div>
+  </div>
 
-<div class="bg-slate-800/40 p-4 border border-slate-700 rounded block h-full">
-<h3 class="text-slate-300 text-sm font-bold">2. Bind Mounts</h3>
-<p class="text-[10px] mt-2 text-slate-400">Maps explicit host folder path. Best for live-reloading code during Dev.</p>
-</div>
+  <div class="bg-slate-800/50 p-4 border border-emerald-500/30 rounded-xl hover:bg-slate-800/80 transition-all duration-300">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="p-2 bg-emerald-500/10 rounded-lg"><mdi-folder-sync-outline class="text-emerald-400 text-xl" /></div>
+      <h3 class="text-emerald-200 font-bold">2. Bind Mounts</h3>
+    </div>
+    <p class="text-[10px] text-slate-300 leading-relaxed mb-3">Maps a specific path from your host OS directly into the container. Very flexible.</p>
+    <div class="text-[9px] bg-emerald-500/10 text-emerald-300 px-2 py-1 rounded inline-block font-bold mt-auto">BEST FOR: Local Development (Hot Reload)</div>
+  </div>
 
-<div class="bg-slate-800/40 p-4 border border-slate-700 rounded block h-full">
-<h3 class="text-slate-300 text-sm font-bold">3. Anonymous Volumes</h3>
-<p class="text-[10px] mt-2 text-slate-400">Docker generates random hash. Hard to track, data potentially lost on deletion.</p>
-</div>
+  <div class="bg-slate-800/50 p-4 border border-slate-600/30 rounded-xl hover:bg-slate-800/80 transition-all duration-300">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="p-2 bg-slate-500/10 rounded-lg"><mdi-ghost-outline class="text-slate-400 text-xl" /></div>
+      <h3 class="text-slate-200 font-bold">3. Anonymous Volumes</h3>
+    </div>
+    <p class="text-[10px] text-slate-300 leading-relaxed mb-3">Similar to Named Volumes but with a random ID. Hard to track and easy to lose.</p>
+    <div class="text-[9px] bg-slate-500/10 text-slate-400 px-2 py-1 rounded inline-block font-bold mt-auto">BEST FOR: Temporary data / "Throwaway"</div>
+  </div>
 
-<div class="bg-slate-800/40 p-4 border border-slate-700 rounded block h-full">
-<h3 class="text-slate-300 text-sm font-bold">4. tmpfs Mounts</h3>
-<p class="text-[10px] mt-2 text-slate-400">Written to RAM only. Flushed when container stops. High speed & security.</p>
-</div>
+  <div class="bg-slate-800/50 p-4 border border-amber-500/30 rounded-xl hover:bg-slate-800/80 transition-all duration-300">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="p-2 bg-amber-500/10 rounded-lg"><mdi-memory class="text-amber-400 text-xl" /></div>
+      <h3 class="text-amber-200 font-bold">4. tmpfs Mounts</h3>
+    </div>
+    <p class="text-[10px] text-slate-300 leading-relaxed mb-3">Stored in the host's memory (RAM), never written to disk. Blazing fast.</p>
+    <div class="text-[9px] bg-amber-500/10 text-amber-300 px-2 py-1 rounded inline-block font-bold mt-auto">BEST FOR: High Security / Sensitive Secrets</div>
+  </div>
 </div>
 
 ---
@@ -988,6 +1231,14 @@ services:
 ```
 
 ---
+layout: fact
+---
+
+# 📺 LIVE DEMO 08
+## Docker Compose Basic
+Goal: Orchestrate a Todo API and a Postgres DB with automated network.
+
+---
 
 # Deep Dive: Docker Compose Networking
 
@@ -1012,7 +1263,7 @@ layout: fact
 ## Does my-app need to know the IP address of my-db inside Docker Compose?
 
 <v-click>
-<Admonition color="sky" title="Answer" icon="mdi-check">
+<Admonition color="slate" title="Answer" icon="mdi-check">
   <b>No!</b> It uses the <b>Service Name</b> (Docker's built-in DNS).
 </Admonition>
 </v-click>
@@ -1083,42 +1334,57 @@ services:
 </div>
 
 ---
+layout: fact
+---
+
+# 📺 LIVE DEMO 09
+## Docker Compose Advanced
+Goal: Add Healthcheck and Resource Limits to make our stack robust.
 
 ---
 layout: section
 ---
 
-# 🏗️ Exercise Time: The Todo API
-## Goal: Containerize a multi-service stack
+<div class="flex flex-col items-center justify-center h-full">
+  <div class="p-6 bg-slate-800/50 border-2 border-dashed border-slate-700 rounded-3xl mb-8">
+    <mdi-worker class="text-8xl text-amber-400 opacity-80" />
+  </div>
+  <h1 class="text-6xl font-black tracking-tighter uppercase">Exercise Time</h1>
+  <p class="text-2xl text-slate-400 font-medium mt-4">The Todo API: multi-service orchestration</p>
+</div>
 
 ---
 
 # Practice: Containerize the Todo API
 
 <div class="grid grid-cols-2 gap-8 mt-4">
-<div>
+  <div class="space-y-6">
+    <Admonition color="blue" title="1. Instructions" icon="mdi-book-open-variant" customTitle="text-lg font-bold">
+      <ul class="space-y-3 mt-2 text-sm text-slate-200">
+        <li><span class="font-bold text-blue-400 mr-2">Step 1:</span> Navigate to the <code>/starter</code> folder.</li>
+        <li><span class="font-bold text-blue-400 mr-2">Step 2:</span> Solve <b>5 TODOs</b> in the <code>Dockerfile</code>.</li>
+        <li><span class="font-bold text-blue-400 mr-2">Step 3:</span> Solve <b>11 TODOs</b> in <code>docker-compose.yml</code>.</li>
+        <li><span class="font-bold text-blue-400 mr-2">Step 4:</span> Deployment: <code>docker compose up -d</code></li>
+      </ul>
+    </Admonition>
+  </div>
 
-### 🎯 Success Criteria
-- [x] Docker image builds successfully
-- [x] Both containers start (App + DB)
-- [x] API responds on `localhost:8080`
-- [x] Health check returns `UP`
-
+  <div class="space-y-6">
+    <Admonition color="emerald" title="2. Success Criteria" icon="mdi-trophy-variant" customTitle="text-lg font-bold">
+      <ul class="space-y-4 mt-2 text-sm text-slate-200">
+        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Multi-stage build succeeds</span></li>
+        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Both App and DB are strictly healthy</span></li>
+        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>API responses on <code>:8080</code></span></li>
+        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Network isolation is maintained</span></li>
+      </ul>
+    </Admonition>
+  </div>
 </div>
-<div>
 
-### 📝 Instructions
-1. Navigate to `/starter`
-2. Complete **5 TODOs** in `Dockerfile`
-3. Complete **11 TODOs** in `docker-compose.yml`
-4. Run `docker compose up -d`
-5. Test with `curl http://localhost:8080/`
-
-</div>
-</div>
-
-<div class="mt-8 text-center text-sm italic text-slate-400">
-  Check the <code>README.md</code> in the starter folder for step-by-step guidance!
+<div class="mt-10 p-4 bg-slate-800/40 border border-slate-700 rounded-xl text-center">
+  <p class="text-sm font-medium text-slate-300">
+    <mdi-information-outline class="inline mr-1 text-blue-400" /> Need help? Detailed step-by-step guidance is available in the <code>README.md</code> file!
+  </p>
 </div>
 
 ---
@@ -1154,11 +1420,122 @@ volumes:
 layout: section
 ---
 
-# Kubernetes (K8s) Fundamentals
-Orchestrating containers at scale
+# Section 4: Configuration & Secrets
+Managing environments and sensitive data in Docker Compose
 
 ---
-layout: default
+
+# YAML "Gotchas" (Pro-Tip)
+
+Docker Compose relies heavily on YAML formatting. **YAML is notoriously sensitive to spacing.**
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### The Golden Rules
+1. **Spaces, never tabs!** Always use exactly 2 spaces for each indentation level.
+2. **Watch your dashes:** A dash (`-`) means an item in a list (array). Without it, it's just a dictionary value.
+3. **Strings:** Usually you don't need quotes, but watch out for colons or special characters—wrap those in quotes.
+
+</div>
+<div>
+
+### Stop Debugging Spaces
+Do not spend 30 minutes debugging a "missing dash".
+
+<Admonition color="slate" title="IDE Lifesaver" icon="mdi-lifebuoy">
+  <p class="text-[10px] text-slate-200">
+    Install the <b>Docker extension for VS Code</b>. It provides live YAML linting, auto-completion, and will immediately highlight spacing errors before you ever run <code>docker compose up</code>.
+  </p>
+</Admonition>
+
+</div>
+</div>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 10
+## Docker Compose YAML Validation
+Goal: Understand how Docker validates your YAML and find syntax errors.
+
+---
+
+# Environment Variables in Docker Compose
+
+Separating configuration from code.
+Do not hardcode environment variables like `DB_HOST` in your images!
+
+<div class="space-y-6 mt-8">
+  <Admonition color="blue" title="1. The environment block" icon="mdi-tune">
+    <p class="text-sm">Define variables directly in the YAML. Good for non-sensitive data.</p>
+    <div class="bg-gray-800 p-2 rounded mt-2 font-mono text-sm">
+      environment:<br/>
+      &nbsp;&nbsp;- APP_ENV=production<br/>
+      &nbsp;&nbsp;- DB_HOST=db
+    </div>
+  </Admonition>
+
+  <Admonition color="green" title="2. The env_file block" icon="mdi-file-document-outline">
+    <p class="text-sm">Load variables from an external <code>.env</code> file. Do not commit this file to Git!</p>
+    <div class="bg-gray-800 p-2 rounded mt-2 font-mono text-sm">
+      env_file:<br/>
+      &nbsp;&nbsp;- .env
+    </div>
+  </Admonition>
+</div>
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 11
+## Docker Compose Environment Variables
+Goal: Pass configuration to containers using both environment blocks and .env files.
+
+---
+
+# Docker Secrets
+
+For highly sensitive data: Passwords, API keys, TLS certificates.
+Environment variables can be read by any script running in the container. **Secrets** are safer.
+
+<div class="mt-8 space-y-6">
+  <Admonition color="rose" title="How they work" icon="mdi-incognito">
+    <p class="text-xs text-slate-200">
+      Docker Secrets mount sensitive files directly into memory inside the container (usually at <code>/run/secrets/</code>). They never touch the container's hard drive and don't appear in <code>printenv</code>.
+    </p>
+  </Admonition>
+</div>
+
+```yaml {all|4-5|7-9|all}
+services:
+  db:
+    image: postgres:16
+    secrets:
+      - db_password # Mounts the secret into /run/secrets/db_password
+
+secrets:
+  db_password:
+    file: ./db_password.txt # The actual file on your host machine
+```
+
+---
+layout: fact
+---
+
+# 📺 LIVE DEMO 12
+## Docker Secrets
+Goal: Mount a secure database password without exposing it in environment variables.
+
+---
+layout: section
+---
+
+# Section 5: Kubernetes (K8s) Fundamentals
+An Introduction to Orchestration at Scale
+
 ---
 
 # The "Why K8s" Bridge
@@ -1166,7 +1543,7 @@ layout: default
 Docker Compose is for **local development** and single-node environments. Kubernetes is for **production** and multi-node clusters.
 
 <div class="mt-8 flex justify-center">
-  <Admonition color="blue" title="The Shipping Analogy" icon="mdi-ship-wheel" customTitle="text-lg">
+  <Admonition color="slate" title="The Shipping Analogy" icon="mdi-ship-wheel" customTitle="text-lg">
     <table class="w-full text-left text-xs text-slate-200 mt-2">
       <tbody>
         <tr class="border-b border-slate-700">
@@ -1176,12 +1553,12 @@ Docker Compose is for **local development** and single-node environments. Kubern
         </tr>
         <tr class="border-b border-slate-700">
           <td class="p-2"><mdi-truck-cargo-container class="text-xl text-blue-400" /></td>
-          <td class="p-2 font-bold text-sky-300">Docker Compose</td>
+          <td class="p-2 font-bold text-slate-300">Docker Compose</td>
           <td class="p-2">A small truck carrying a few containers locally.</td>
         </tr>
         <tr>
           <td class="p-2"><mdi-crane class="text-xl text-blue-400" /></td>
-          <td class="p-2 font-bold text-blue-400">Kubernetes</td>
+          <td class="p-2 font-bold text-slate-300">Kubernetes</td>
           <td class="p-2">The automated port facility managing thousands of ships and containers.</td>
         </tr>
       </tbody>
@@ -1239,214 +1616,14 @@ Docker Compose is great for local development. But what about production?
 </div>
 
 ---
-layout: section
----
-
-# YAML Manifests
-Deploying the Todo App to Kubernetes
-
----
-
-# YAML "Gotchas" (Pro-Tip)
-
-Kubernetes heavily relies on YAML manifests. **YAML is notoriously sensitive to spacing.**
-
-<div class="grid grid-cols-2 gap-8 mt-8">
-<div>
-
-### The Golden Rules
-1. **Spaces, never tabs!** Always use exactly 2 spaces for each indentation level.
-2. **Watch your dashes:** A dash (`-`) means an item in a list (array). Without it, it's just a dictionary value.
-3. **Strings:** Usually you don't need quotes, but wrap numbers like `"500m"` or versions like `"1.22"` in quotes to prevent parsing errors.
-
-</div>
-<div>
-
-### Stop Debugging Spaces
-Do not spend 30 minutes debugging a "missing dash".
-
-<Admonition color="sky" title="IDE Lifesaver" icon="mdi-lifebuoy">
-  <p class="text-[10px] text-slate-200">
-    Install the <b>Kubernetes extension for VS Code</b> (or your preferred IDE). It provides live YAML linting, auto-completion, and will immediately highlight spacing errors before you ever run <code>kubectl apply</code>.
-  </p>
-</Admonition>
-
-</div>
-</div>
-
----
-
-# Deployments & Pods
-
-- **Pod:** The smallest unit in K8s. Usually contains 1 container.
-- **Deployment:** Manages Pods. Gives you replicas, scaling, and rolling updates.
-
-```yaml {all|1-5|6-10|12-20|all}
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: todo-app
-  labels: { app: todo }
-spec:
-  replicas: 3          # Keep exactly 3 pods running!
-  selector:
-    matchLabels: { app: todo }
-  template:            # ⬇️ This is the Pod definition ⬇️
-    metadata:
-      labels: { app: todo }
-    spec:
-      containers:
-        - name: todo-app
-          image: todo-app:1.0.0
-          ports:
-            - containerPort: 8080
-          resources:
-            limits: { cpu: "500m", memory: "512Mi" }
-```
-
----
-
-# Services
-
-A Deployment creates Pods, but Pod IP addresses constantly change when they are recreated.
-A **Service** acts as an internal load balancer with a stable internal IP and DNS name.
-
-```yaml {all|6-7|8-10|11-14|all}
-apiVersion: v1
-kind: Service
-metadata:
-  name: todo-app-service
-spec:
-  # NodePort allows external access (ClusterIP is internal only)
-  type: NodePort
-  selector:
-    # Route traffic to Pods with this label
-    app: todo
-  ports:
-    - port: 80           # The port the Service listens on
-      targetPort: 8080   # The port the Container listens on
-      nodePort: 30080    # The port opened on the physical host
-```
-
----
-
-# Networking Visuals: Demystifying Ports
-
-This is the #1 point of confusion. How does a request actually reach the Pod?
-
-<div class="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-700 font-mono text-center shadow-lg flex items-center justify-center text-sm">
-  <div class="text-rose-400 font-bold bg-gray-800 p-2 rounded">Internet</div>
-  <mdi-arrow-right-thick class="mx-2 text-slate-500 text-xl" />
-  <div class="text-sky-400 bg-gray-800 p-2 rounded border border-sky-900">NodePort<br/><span class="text-xs text-sky-200">30080</span></div>
-  <mdi-arrow-right-thick class="mx-2 text-slate-500 text-xl" />
-  <div class="text-blue-400 bg-gray-800 p-2 rounded border border-blue-900">Service Port<br/><span class="text-xs text-blue-200">80</span></div>
-  <mdi-arrow-right-thick class="mx-2 text-slate-500 text-xl" />
-  <div class="text-emerald-400 bg-gray-800 p-2 rounded border border-emerald-900">targetPort<br/><span class="text-xs text-emerald-200">8080</span></div>
-</div>
-
-<div class="mt-6">
-  <table class="w-full text-left text-[10px] text-slate-200 mt-2 border-collapse">
-    <thead>
-      <tr class="bg-gray-800 text-slate-100">
-        <th class="p-2 border border-slate-700">Port Name</th>
-        <th class="p-2 border border-slate-700">Where is it?</th>
-        <th class="p-2 border border-slate-700">What does it do?</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="p-2 border border-slate-700 font-bold text-emerald-400">targetPort</td>
-        <td class="p-2 border border-slate-700">Inside the Pod</td>
-        <td class="p-2 border border-slate-700">The actual port your application code listens on (e.g., Spring Boot on 8080).</td>
-      </tr>
-      <tr>
-        <td class="p-2 border border-slate-700 font-bold text-blue-400">port (Service Port)</td>
-        <td class="p-2 border border-slate-700">The Service (Internal)</td>
-        <td class="p-2 border border-slate-700">The stable internal port other Pods use to talk to this service.</td>
-      </tr>
-      <tr>
-        <td class="p-2 border border-slate-700 font-bold text-sky-400">nodePort</td>
-        <td class="p-2 border border-slate-700">The physical server</td>
-        <td class="p-2 border border-slate-700">Opens a port (30000-32767) on the external IP of the physical K8s node.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
----
-layout: section
----
-
-# Section 6: ConfigMap & Secret
-
-Managing application configuration securely
-
----
-
-# ConfigMap
-
-Separating configuration from code.
-Do not hardcode environment variables like `DB_HOST` in your image!
-
-```yaml {all|5-8|11-14|all}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: todo-config
-data:
-  # These will become environment variables
-  APP_ENV: "production"
-  DB_HOST: "todo-postgres-service"
-```
-
-In your Deployment YAML, you inject the entire ConfigMap:
-```yaml
-          # Inside your container spec:
-          envFrom:
-            - configMapRef:
-                name: todo-config
-```
-
----
-
-# Secret
-
-For sensitive data: Passwords, API keys, TLS certificates.
-Values MUST be base64 encoded.
-
-```yaml {all|6-7|9-13|all}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: todo-secret
-type: Opaque
-data:
-  # echo -n "secretpassword" | base64
-  # IMPORTANT: This is encoded, NOT encrypted!
-  DB_PASSWORD: c2VjcmV0cGFzc3dvcmQ=
-```
-
-When injected as an environment variable, K8s decodes it for the container:
-```yaml
-          env:
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: todo-secret
-                  key: DB_PASSWORD
-```
-
----
-layout: section
----
-
----
-layout: section
+layout: fact
 ---
 
 # 🏆 Final Challenge: The Notes API
 ## Independent Practice: App + DB + Redis
 
+---
+layout: fact
 ---
 
 # Exercise: The Notes API
@@ -1471,7 +1648,7 @@ layout: section
 </div>
 
 <div class="mt-12 text-center">
-  <Admonition color="sky" title="Independent Work" icon="mdi-keyboard">
+  <Admonition color="slate" title="Independent Work" icon="mdi-keyboard">
     Navigate to <code>exercise/</code> and follow the <code>README.md</code>. <br/>
     <b>You have 60 minutes!</b>
   </Admonition>

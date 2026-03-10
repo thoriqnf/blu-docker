@@ -1,0 +1,10 @@
+services:
+  db:
+    image: alpine
+    command: tail -f /dev/null
+    secrets:
+      - db_password
+
+secrets:
+  db_password:
+    file: ./db_password.txt
