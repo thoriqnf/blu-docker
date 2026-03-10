@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-api-deployment
+  labels:
+    app: todo-api
+spec:
+  # TODO: Set replicas to 3
+  replicas: 
+  selector:
+    matchLabels:
+      app: todo-api
+  template:
+    metadata:
+      labels:
+        app: todo-api
+    spec:
+      containers:
+        - name: todo-api
+          # TODO: Use the 'nginx:alpine' image
+          image: 
+          ports:
+            # TODO: Open container port 80
+            - containerPort: 
+          envFrom:
+            - configMapRef:
+                # TODO: Reference the 'todo-config' configmap
+                name: 

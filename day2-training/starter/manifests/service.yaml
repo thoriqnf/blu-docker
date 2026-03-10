@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-api-service
+spec:
+  # TODO: Set type to ClusterIP
+  type: 
+  selector:
+    # TODO: This must exactly match the pod labels in your deployment! (app: todo-api)
+    
+  ports:
+    - protocol: TCP
+      # TODO: Expose port 80, targeting port 80
+      port: 
+      targetPort: 

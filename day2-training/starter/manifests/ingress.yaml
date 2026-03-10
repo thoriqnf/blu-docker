@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: todo-api-ingress
+spec:
+  rules:
+    # TODO: Route traffic coming to host 'todo.local'
+    - host: 
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # TODO: Point to your 'todo-api-service' on port 80
+                name: 
+                port:
+                  number: 

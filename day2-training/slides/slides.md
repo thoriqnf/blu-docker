@@ -22,8 +22,8 @@ title: Day 2 - Debugging Kubernetes & Advanced Deployment
 ## Debugging Kubernetes & Advanced Deployment
 
 <div class="mt-10">
-  <img src="/k8s-networking.png" class="h-40 rounded shadow mx-auto inline-block" />
-  <img src="/cicd-pipeline.png" class="h-40 rounded shadow mx-auto inline-block ml-4" />
+  <img src="https://placehold.co/600x400/333/fff?text=Kubernetes+Networking" class="h-40 rounded shadow mx-auto inline-block" />
+  <img src="https://placehold.co/800x400/333/fff?text=CI/CD+Pipeline" class="h-40 rounded shadow mx-auto inline-block ml-4" />
 </div>
 
 <div class="abs-br m-6 flex gap-2">
@@ -221,6 +221,45 @@ You just finished writing your Node.js application. What are the exact steps to 
 **Congratulations.** Your app is now running, load-balanced, auto-healing, and accessible inside the cluster!
 
 ---
+
+# How to Setup Minikube
+
+Before we test these concepts, we need a local cluster. Minikube provisions a single-node K8s cluster inside a VM or Docker container on your laptop.
+
+<div class="grid grid-cols-2 gap-8 mt-8 text-left">
+<div>
+
+### Installation (Mac/Linux)
+
+```bash
+# macOS (Homebrew)
+$ brew install minikube
+
+# Start the cluster (using docker driver)
+$ minikube start --driver=docker
+```
+
+</div>
+<div>
+
+### Verification
+
+Check your cluster status:
+```bash
+$ minikube status
+```
+
+Verify your node is ready:
+```bash
+$ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   1m    v1.28.3
+```
+
+</div>
+</div>
+
+---
 layout: section
 ---
 
@@ -269,6 +308,42 @@ Because Pods come and go (IPs change), we use **Services** for stable endpoints.
   <h3 class="text-orange-500 text-lg font-bold">3. LoadBalancer</h3>
   <p class="text-sm">Provisions a Cloud provider's load balancer (AWS ELB, GCP LB).</p>
   <p class="text-xs text-gray-500">Use case: Exposing a production application directly to the public internet.</p>
+</div>
+</div>
+
+---
+
+# Mental Bridge: Ports from Compose to K8s
+
+How port mapping translates from what we learned in Day 1:
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### Docker Compose
+```yaml
+services:
+  api:
+    image: my-app:v1
+    ports:
+      - "8080:80"
+```
+<p class="text-sm mt-2 text-gray-300">"Bind my host machine's port 8080 to the container's internal port 80."</p>
+
+</div>
+<div>
+
+### Kubernetes Service
+```yaml
+apiVersion: v1
+kind: Service
+spec:
+  ports:
+    - port: 8080        # The Service Port
+      targetPort: 80    # The Container Port
+```
+<p class="text-sm mt-2 text-gray-300">The <code>targetPort</code> is the right side of the colon in Docker Compose.</p>
+
 </div>
 </div>
 
@@ -328,7 +403,7 @@ The ultimate brain and memory of the cluster.
 
 ---
 
-# The Control Plane: kube-scheduler
+# The Control Plane: kube-scheduler (1/2)
 
 How does K8s decide where your Pod goes?
 
@@ -340,6 +415,14 @@ When you apply a Deployment, the scheduler does a 2-step process for every new P
    - *Does Node 1 have enough RAM?* (Yes)
    - *Does Node 2 have a GPU attached?* (No -> Filtered out)
    - *Is Node 3 tainted against my Pod?* (Yes -> Filtered out)
+
+</div>
+
+---
+
+# The Control Plane: kube-scheduler (2/2)
+
+<div class="mt-8 space-y-4">
 
 2. **Scoring (Priorities):**
    - The scheduler ranks the surviving nodes.
@@ -490,7 +573,7 @@ Let's trace a user request from the browser to your Pod:
 
 </div>
 <div>
-  <img src="/k8s-ingress.png" class="w-full rounded shadow" alt="K8s Ingress Architecture" />
+  <img src="https://placehold.co/800x400/333/fff?text=K8s+Ingress+Routing" class="w-full rounded shadow" alt="K8s Ingress Architecture" />
 </div>
 </div>
 
@@ -808,45 +891,6 @@ Live Demonstration on Minikube / K3s
 
 ---
 
-# How to Setup Minikube
-
-Before we debug, we need a local cluster. Minikube provisions a single-node K8s cluster inside a VM or Docker container on your laptop.
-
-<div class="grid grid-cols-2 gap-8 mt-8 text-left">
-<div>
-
-### Installation (Mac/Linux)
-
-```bash
-# macOS (Homebrew)
-$ brew install minikube
-
-# Start the cluster (using docker driver)
-$ minikube start --driver=docker
-```
-
-</div>
-<div>
-
-### Verification
-
-Check your cluster status:
-```bash
-$ minikube status
-```
-
-Verify your node is ready:
-```bash
-$ kubectl get nodes
-NAME       STATUS   ROLES           AGE   VERSION
-minikube   Ready    control-plane   1m    v1.28.3
-```
-
-</div>
-</div>
-
----
-
 # Demo Environment: Minikube
 
 Now that our local cluster is running...
@@ -905,7 +949,7 @@ $ helm install my-db bitnami/postgresql \
 # The CI/CD Pipeline
 
 <div class="mt-4 flex justify-center">
-  <img src="/cicd-pipeline.png" class="h-[400px] rounded shadow" alt="CI/CD Pipeline Architecture" />
+  <img src="https://placehold.co/800x400/333/fff?text=CI/CD+Pipeline" class="h-[400px] rounded shadow" alt="CI/CD Pipeline Architecture" />
 </div>
 
 ---

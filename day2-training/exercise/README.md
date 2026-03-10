@@ -10,9 +10,10 @@ The developers swear "it works on my machine", but it's failing in the Minikube 
 Your job is to investigate, find the root causes, and edit the YAML files to fix them.
 
 ## Setup
-First, deploy the broken application to your cluster:
+First, deploy the broken application to your cluster. Ensure Minikube is running with the Docker driver.
 
 ```bash
+minikube start --driver=docker
 cd broken-app
 kubectl apply -f .
 ```
@@ -37,18 +38,23 @@ The pods are running, but other internal services can't reach them!
 
 ### Task 3: Fix the External Routing (Ingress)
 Internal network works, but external customers still get a generic 404 or 502 error on `store.local`.
-1. Look at `broken-app/ingress.yaml`.
-2. Find the two routing mistakes:
+1. Ensure the Ingress controller is enabled in Minikube: `minikube addons enable ingress`
+2. Look at `broken-app/ingress.yaml`.
+3. Find the two routing mistakes:
    - Is it pointing to the right Service name?
    - Is it pointing to the correct Service port? (Check `service.yaml` for the port number!)
-3. Fix `ingress.yaml` and apply.
+4. Fix `ingress.yaml` and apply.
+5. In a new terminal run: `minikube tunnel`
+6. Test with: `curl -H "Host: store.local" http://127.0.0.1`
 
 ---
 
 ## 🎯 Success Criteria
+- [ ] `minikube status` confirms cluster is healthy.
 - [ ] `kubectl get pods` shows 2 pods in `Running` state.
 - [ ] `kubectl describe svc my-store-service` shows actual Pod IPs under `Endpoints`.
-- [ ] The Ingress correctly routes `store.local/` to the `my-store-service` on port 80.
+- [ ] The Ingress correctly routes `store.local` to the `my-store-service` on port 80.
+- [ ] `curl -H "Host: store.local" http://127.0.0.1` returns a success response.
 
 ## 💡 Hints
 - Pods are crashing because they don't have the right environment variable to connect to their (mock) database. It expects `DB_PASSWORD` but the YAML has a typo!
