@@ -1057,30 +1057,6 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
-# Multi-Stage Example 2: Go (The Ultimate Flex)
-
-Go can compile to a static binary with exactly ZERO external OS dependencies.
-
-```dockerfile {all|1-2|4|6-7|9-10|all}
-# STAGE 1: Builder (Heavy Go SDK ~ 800MB)
-FROM golang:1.22-alpine AS builder
-WORKDIR /app
-COPY . .
-# Compile a 100% standalone static binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o my-api 
-
-# STAGE 2: "scratch" (Empty Image ~ 0MB)
-# The "scratch" image has no OS, no shell, no libraries. Literal nothingness.
-FROM scratch
-
-COPY --from=builder /app/my-api /my-api
-ENTRYPOINT ["/my-api"]
-```
-
-**Final Image Size:** Exact size of your binary (~10MB). No OS vulnerabilities possible!
-
----
-
 # Step 5: Persistence (Volumes)
 
 **Crucial Beginner Tip:** When a container is deleted, everything inside it is wiped. If you have a database inside a container, your data dies with it!
@@ -1342,52 +1318,6 @@ layout: fact
 Goal: Add Healthcheck and Resource Limits to make our stack robust.
 
 ---
-layout: section
----
-
-<div class="flex flex-col items-center justify-center h-full">
-  <div class="p-6 bg-slate-800/50 border-2 border-dashed border-slate-700 rounded-3xl mb-8">
-    <mdi-worker class="text-8xl text-amber-400 opacity-80" />
-  </div>
-  <h1 class="text-6xl font-black tracking-tighter uppercase">Exercise Time</h1>
-  <p class="text-2xl text-slate-400 font-medium mt-4">The Todo API: multi-service orchestration</p>
-</div>
-
----
-
-# Practice: Containerize the Todo API
-
-<div class="grid grid-cols-2 gap-8 mt-4">
-  <div class="space-y-6">
-    <Admonition color="blue" title="1. Instructions" icon="mdi-book-open-variant" customTitle="text-lg font-bold">
-      <ul class="space-y-3 mt-2 text-sm text-slate-200">
-        <li><span class="font-bold text-blue-400 mr-2">Step 1:</span> Navigate to the <code>/starter</code> folder.</li>
-        <li><span class="font-bold text-blue-400 mr-2">Step 2:</span> Solve <b>5 TODOs</b> in the <code>Dockerfile</code>.</li>
-        <li><span class="font-bold text-blue-400 mr-2">Step 3:</span> Solve <b>11 TODOs</b> in <code>docker-compose.yml</code>.</li>
-        <li><span class="font-bold text-blue-400 mr-2">Step 4:</span> Deployment: <code>docker compose up -d</code></li>
-      </ul>
-    </Admonition>
-  </div>
-
-  <div class="space-y-6">
-    <Admonition color="emerald" title="2. Success Criteria" icon="mdi-trophy-variant" customTitle="text-lg font-bold">
-      <ul class="space-y-4 mt-2 text-sm text-slate-200">
-        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Multi-stage build succeeds</span></li>
-        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Both App and DB are strictly healthy</span></li>
-        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>API responses on <code>:8080</code></span></li>
-        <li class="flex items-center gap-3"><mdi-check-circle-outline class="text-emerald-400 text-xl" /> <span>Network isolation is maintained</span></li>
-      </ul>
-    </Admonition>
-  </div>
-</div>
-
-<div class="mt-10 p-4 bg-slate-800/40 border border-slate-700 rounded-xl text-center">
-  <p class="text-sm font-medium text-slate-300">
-    <mdi-information-outline class="inline mr-1 text-blue-400" /> Need help? Detailed step-by-step guidance is available in the <code>README.md</code> file!
-  </p>
-</div>
-
----
 
 # Scenario: The Monorepo Architecture
 
@@ -1616,40 +1546,34 @@ Docker Compose is great for local development. But what about production?
 </div>
 
 ---
-layout: fact
+layout: default
 ---
 
-# 🏆 Final Challenge: The Notes API
+# Final Challenge: The Notes API
 ## Independent Practice: App + DB + Redis
 
----
-layout: fact
----
-
-# Exercise: The Notes API
-
-<div class="grid grid-cols-2 gap-8 mt-4">
+<div class="grid grid-cols-2 gap-10 mt-6">
 <div>
 
-### 🚀 Your Mission
-- Build a Dockerfile **from scratch** for port `8081`.
-- Compose **3 Services**: Postgres + Redis + Notes API.
-- Implement **Healthchecks** and resource limits.
+### Your Task
+- Build a Dockerfile **from scratch** for port `8081`
+- Compose **3 Services**: Postgres + Redis + API
+- Implement **Healthchecks** and resource limits
 
 </div>
 <div>
 
-### 📋 Requirements
-- **Postgres**: Persistence with volumes.
-- **Redis**: Use it for the caching layer.
-- **API**: Must wait for DB and Redis to be healthy.
+### Requirements
+- **Persistence**: Use Volumes for PostgreSQL
+- **Caching**: Integrate Redis for performance
+- **Orchestration**: App waits for DB/Redis health
 
 </div>
 </div>
 
-<div class="mt-12 text-center">
-  <Admonition color="slate" title="Independent Work" icon="mdi-keyboard">
-    Navigate to <code>exercise/</code> and follow the <code>README.md</code>. <br/>
-    <b>You have 60 minutes!</b>
+<div class="mt-12">
+  <Admonition color="blue" title="Exercise Instructions" icon="mdi-keyboard">
+    Go to <code>exercise/</code> and follow <code>README.md</code>. <br/>
+    <b>Time: 60 Minutes</b>
   </Admonition>
 </div>
