@@ -1,14 +1,22 @@
-# Write your Docker Compose here!
-# You need 3 services: postgres, redis, notes-app
-# Refer to the README.md for all required configuration.
+# Wservices:
+  # Level 1: Add the services (db, redis, app)
+  # Level 2: Add volumes and use .env for passwords
+  # Level 3: Add healthchecks and health-based dependencies
+  # Level 4: Add secrets for DB_PASSWORD
 
-services:
-  # Your services go here...
-  postgres:
-    # TODO
+  db:
+    image: postgres:16-alpine
+    # TODO: Set environment variables (Level 1)
+    # TODO: Add persistence (Level 2)
+    # TODO: Add healthcheck (Level 3)
 
   redis:
-    # TODO
+    image: redis:7-alpine
+    # TODO: Add healthcheck (Level 3)
 
-  notes-app:
-    # TODO
+  app:
+    # TODO: Build from Dockerfile (Level 1)
+    # TODO: Map port 8081 (Level 1)
+    # TODO: Set environment variables for DB and Redis (Level 1)
+    # TODO: Add depends_on with health condition (Level 3)
+    # TODO: Add resource limits (Level 3)
