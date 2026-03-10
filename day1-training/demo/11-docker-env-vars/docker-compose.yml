@@ -1,13 +1,10 @@
 services:
-  web:
+  app:
     image: alpine
     command: tail -f /dev/null
     environment:
-      - APP_ENV=production
-      - APP_PORT=8080
-
-  worker:
-    image: alpine
-    command: tail -f /dev/null
+      # This is defined in the YAML itself
+      - APP_COLOR=${APP_COLOR:-gray} 
+      - DB_USER=${DB_USER}
     env_file:
       - .env
