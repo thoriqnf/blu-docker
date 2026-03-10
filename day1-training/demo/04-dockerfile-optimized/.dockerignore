@@ -1,0 +1,7 @@
+# .dockerignore demo file
+node_modules
+.git
+.gitignore
+README.md
+Dockerfile
+*.log

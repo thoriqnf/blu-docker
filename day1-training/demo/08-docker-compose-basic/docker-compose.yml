@@ -1,0 +1,23 @@
+services:
+  # ---------- Database ----------
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tododb
+      POSTGRES_USER: todouser
+      POSTGRES_PASSWORD: todopass123
+    # No port mapping needed for internal communication!
+
+  # ---------- API ----------
+  api:
+    build: ./todo-app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db # Uses the service name as the hostname
+      DB_PORT: 5432
+      DB_NAME: tododb
+      DB_USERNAME: todouser
+      DB_PASSWORD: todopass123
+    depends_on:
+      - db
