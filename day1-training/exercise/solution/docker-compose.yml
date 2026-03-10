@@ -7,6 +7,7 @@ services:
     environment:
       - POSTGRES_DB=notesdb
       - POSTGRES_USER=notesuser
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password # Fix: Use the secret file
     secrets:
       - db_password # Level 5: Hidden Secrets
     volumes:
@@ -37,12 +38,17 @@ services:
       context: ..
       dockerfile: solution/Dockerfile # Level 2: Multi-stage Build
     ports:
-      - "8081:8081" # Level 1: Mapping
-    environment: # Level 5: Interpolation
+      - "${APP_PORT:-8081}:8081" # Level 1: Mapping
+    environment: # Level 1-5: Configuration
       - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD} 
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - SERVER_PORT=8081
-      - APP_NAME=${APP_NAME:-Notes API} 
+      - APP_NAME=${APP_NAME} 
     secrets: # Level 5: Secrets
       - db_password
     deploy:
