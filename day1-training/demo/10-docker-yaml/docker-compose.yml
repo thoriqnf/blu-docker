@@ -1,5 +1,14 @@
 services:
-  web:
+  app:
     image: nginx:alpine
     ports:
-      - "8080:80"
+    - "8080:80" # ERROR 1: Bad Indentation (should be 2 spaces more)
+    networks:
+      - my-custom-net # ERROR 2: Network is used but never defined below
+    volumes:
+      - my-data:/usr/share/nginx/html # ERROR 3: Volume is used but never defined below
+
+  db:
+    image: postgres:16-alpine
+    envirnoment: # ERROR 4: Typo in "environment" (Docker will ignore this, and your DB will fail!)
+      POSTGRES_PASSWORD: secret

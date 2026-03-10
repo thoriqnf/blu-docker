@@ -1,32 +1,46 @@
-# Step 07: Docker Networking Drivers
+# Step 07: Docker Networking & DNS
 
-By default, Docker containers are isolated. We use "Drivers" to connect them.
+By default, Docker containers are isolated. We use **Networks** to allow them to talk to each other securely and easily.
+
+## The "Neighborhood" Analogy
+Think of a Docker Network as a private, gated neighborhood:
+- **Isolation**: People outside the neighborhood can't see who is inside.
+- **Service Discovery**: Everyone in the neighborhood knows each other by **name**, not just house number.
 
 ## Key Networking Concepts
-1. **Bridge (Default)**: Creates a private internal network. Perfect for most use cases (like App + DB).
-2. **Host**: Removes isolation between container and host. High performance but messy.
-3. **None**: No network access (use for batch jobs).
+
+### 1. The "DNS Magic"
+In a custom network, Docker provides a built-in DNS server. This means:
+- You don't need to know that `my-server` has the IP `172.18.0.2`.
+- You can just use the name `my-server` in your code/commands.
+
+### 2. Custom Bridge vs. Default Bridge
+| Feature | Default Bridge | Custom Network (Recommended) |
+| :--- | :--- | :--- |
+| **Isolation** | Shared by all containers | Private to your project |
+| **DNS Discovery** | ❌ None (must use IPs) | ✅ Automatic (use names!) |
 
 ## Commands to Run
 
-### 1. Create a custom network
-Best practice is creating your own network for each project.
+### 1. Create your "Neighborhood"
 ```bash
 docker network create my-custom-network
 ```
 
-### 2. Connect containers
-Run a "server" container and a "client" container on the same network.
+### 2. Connect the "Neighbors"
+We will run a server and then use a client to "shout" at it by name.
+
 ```bash
-# Server
+# Start the Server
 docker run -d --name my-server --network my-custom-network nginx
 
-# Client (testing connection)
+# Start the Client and PING by name
 docker run --rm --network my-custom-network alpine ping -c 3 my-server
 ```
-*Notice that we can ping `my-server` by its NAME instead of its IP! This is Docker's built-in DNS.*
+*Notice: `ping my-server` works perfectly because of Docker's built-in DNS!*
 
-### 3. Cleanup
+## Cleanup
 ```bash
-docker stop my-server && docker network rm my-custom-network
+docker stop my-server
+docker network rm my-custom-network
 ```
