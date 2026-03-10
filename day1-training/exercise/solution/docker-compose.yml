@@ -1,77 +1,72 @@
-# ===========================================
-# Solution: Docker Compose — Notes API
-# ===========================================
-
+# Level 5 Solution: Production-Ready Orchestration
 services:
-  # ---------- PostgreSQL ----------
-  postgres:
+  # ---------- PostgreSQL (Persistence & Health) ----------
+  db:
     image: postgres:16-alpine
-    container_name: notes-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: notesdb
-      POSTGRES_USER: notesuser
-      POSTGRES_PASSWORD: notespass123
-    ports:
-      - "5432:5432"
+      - POSTGRES_DB=notesdb
+      - POSTGRES_USER=notesuser
+    secrets:
+      - db_password # Level 5: Hidden Secrets
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data # Level 3: Persistence
     networks:
-      - notes-network
-    healthcheck:
+      - internal-network # Level 3: Isolated Network
+    healthcheck: # Level 4: Reliability
       test: ["CMD-SHELL", "pg_isready -U notesuser -d notesdb"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
 
-  # ---------- Redis ----------
+  # ---------- Redis (Caching & Health) ----------
   redis:
     image: redis:7-alpine
-    container_name: notes-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     networks:
-      - notes-network
-    healthcheck:
+      - internal-network
+    healthcheck: # Level 4: Reliability
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ---------- Notes API ----------
-  notes-app:
+  # ---------- Notes API (The Core) ----------
+  app:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: notes-app
-    restart: unless-stopped
+      context: ..
+      dockerfile: solution/Dockerfile # Level 2: Multi-stage Build
     ports:
-      - "8081:8081"
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: notesdb
-      DB_USERNAME: notesuser
-      DB_PASSWORD: notespass123
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      SERVER_PORT: 8081
-      APP_NAME: "Notes API"
-      APP_ENV: docker
+      - "8081:8081" # Level 1: Mapping
+    environment: # Level 5: Interpolation
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - SERVER_PORT=8081
+      - APP_NAME=${APP_NAME:-Notes API} 
+    secrets: # Level 5: Secrets
+      - db_password
+    deploy:
+      resources:
+        limits: # Level 4: Guard Rails
+          cpus: '0.50'
+          memory: 512M
     depends_on:
-      postgres:
-        condition: service_healthy
+      db:
+        condition: service_healthy # Level 4: Orchestration
       redis:
         condition: service_healthy
     networks:
-      - notes-network
+      - internal-network
 
+# Level 3: Resources
 networks:
-  notes-network:
+  internal-network:
     driver: bridge
 
 volumes:
   postgres_data:
-    driver: local
+
+# Level 5: Secret Definition
+secrets:
+  db_password:
+    file: ../db_password.txt # Using the file from parent for demo consistency

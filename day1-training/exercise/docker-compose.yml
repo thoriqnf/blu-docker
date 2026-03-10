@@ -1,22 +1,22 @@
-# Wservices:
-  # Level 1: Add the services (db, redis, app)
-  # Level 2: Add volumes and use .env for passwords
-  # Level 3: Add healthchecks and health-based dependencies
-  # Level 4: Add secrets for DB_PASSWORD
+# services:
+  # Level 1: Basic Services (db, redis, app)
+  # Level 3: Add dedicated networks and volumes
+  # Level 4: Add healthchecks and resource limits
+  # Level 5: Add secrets and .env validation
 
   db:
     image: postgres:16-alpine
-    # TODO: Set environment variables (Level 1)
-    # TODO: Add persistence (Level 2)
-    # TODO: Add healthcheck (Level 3)
+    # TODO: Environment (Level 1)
+    # TODO: Volumes (Level 3)
+    # TODO: Healthcheck (Level 4)
 
   redis:
     image: redis:7-alpine
-    # TODO: Add healthcheck (Level 3)
+    # TODO: Healthcheck (Level 4)
 
   app:
-    # TODO: Build from Dockerfile (Level 1)
-    # TODO: Map port 8081 (Level 1)
-    # TODO: Set environment variables for DB and Redis (Level 1)
-    # TODO: Add depends_on with health condition (Level 3)
-    # TODO: Add resource limits (Level 3)
+    # TODO: Build & Ports (Level 1)
+    # TODO: Multi-stage build (Level 2)
+    # TODO: Networks (Level 3)
+    # TODO: Depends_on & Limits (Level 4)
+    # TODO: Secrets (Level 5)

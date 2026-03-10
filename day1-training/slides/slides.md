@@ -1555,18 +1555,17 @@ layout: default
 <div class="grid grid-cols-2 gap-10 mt-6">
 <div>
 
-### Your Task
-- Build a Dockerfile **from scratch** for port `8081`
-- Compose **3 Services**: Postgres + Redis + API
-- Implement **Healthchecks** and resource limits
+### Progression Path
+- **Level 1**: Basic App + DB + Redis
+- **Level 2**: Optimized Multi-Stage Build
+- **Level 3**: Persistence & Networking
 
 </div>
 <div>
 
-### Requirements
-- **Persistence**: Use Volumes for PostgreSQL
-- **Caching**: Integrate Redis for performance
-- **Orchestration**: App waits for DB/Redis health
+### Advance Levels
+- **Level 4**: Healthchecks & Resource Limits
+- **Level 5**: Security (Secrets & Config)
 
 </div>
 </div>
