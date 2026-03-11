@@ -37,13 +37,14 @@ What we will cover in this session:
 <div class="mt-8 mx-auto w-3/4">
   <Admonition color="blue" title="Today's Topics" icon="mdi-format-list-bulleted" custom="text-lg">
     <ul class="text-left space-y-2 list-none p-2 text-xs text-slate-200 font-medium">
-      <li><mdi-lan class="text-blue-400 inline mr-2"/> <b>Section 1:</b> Networking & Service Exposure</li>
-      <li><mdi-database-eye class="text-blue-400 inline mr-2"/> <b>Section 2:</b> Architecture & Advanced Workloads</li>
-      <li><mdi-google-analytics class="text-blue-400 inline mr-2"/> <b>Section 3:</b> Advanced Deployment Deep Dive</li>
-      <li><mdi-bug-check class="text-blue-400 inline mr-2"/> <b>Section 4:</b> Debugging Workflow & Practice</li>
-      <li><mdi-sync class="text-blue-400 inline mr-2"/> <b>Section 5:</b> CI/CD, Helm & GitOps</li>
+      <li><mdi-kubernetes class="text-blue-400 inline mr-2"/> <b>Section 1:</b> Kubernetes Basics &amp; Project Setup</li>
+      <li><mdi-google-analytics class="text-amber-400 inline mr-2"/> <b>Section 2:</b> Advanced Deployment Strategies <span class="text-amber-400">← Centerpiece</span></li>
+      <li><mdi-lan class="text-blue-400 inline mr-2"/> <b>Section 3:</b> Networking, Architecture &amp; Advanced Workloads</li>
+      <li><mdi-bug-check class="text-blue-400 inline mr-2"/> <b>Section 4:</b> Debugging Workflow &amp; Practice</li>
+      <li><mdi-sync class="text-blue-400 inline mr-2"/> <b>Section 5:</b> CI/CD, Helm &amp; GitOps</li>
       <li><mdi-trophy-variant class="text-blue-400 inline mr-2"/> <b>Section 6:</b> Final Debugging Challenge</li>
     </ul>
+    <p class="text-[10px] text-slate-400 italic mt-3 text-center">Central theme: <b class="text-amber-400">Every deployment decision is a risk management decision.</b></p>
   </Admonition>
 </div>
 
@@ -84,46 +85,9 @@ Why did Kubernetes win?
 
 # The Orchestration Wars (2014-2017)
 
-- **Docker Swarm:**
-  - Built by Docker. Very easy to use. "Just like Docker Compose but for servers."
-  - **Status:** Simple and elegant for small stacks, but struggled to build the complex primitives needed for large-scale enterprise automation.
-- **Apache Mesos:**
-  - "The Datacenter OS". A powerhouse that ran Twitter and Airbnb at massive scale.
-  - **Status:** Genuinely impressive, industrial-grade technology, but proved too complex for average teams to operate.
-- **Kubernetes (Borg's Child):**
-  - Based on 15 years of running Google Search (Borg).
-  - **Status:** Won by providing the **perfect abstraction model** ("Desired State") and leveraging the massive momentum of the open-source ecosystem. **The standard.**
-
----
-layout: section
----
-
-# Recap: The "Restaurant" Analogy
-
-How do all the Kubernetes pieces actually fit together?
-
----
-
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <Admonition color="blue" title="1. Container (The Chef)" icon="mdi-chef-hat" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">The person doing the work. Knows specific recipes (Node, Python).</p>
-  </Admonition>
-  <Admonition color="slate" title="2. Pod (Kitchen Station)" icon="mdi-countertop" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">The physical space. Provides the stove and local network.</p>
-  </Admonition>
-  <Admonition color="green" title="3. ReplicaSet (Manager)" icon="mdi-account-tie" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">Ensures exactly *N* Chefs are always cooking at all times.</p>
-  </Admonition>
-  <Admonition color="amber" title="4. Deployment (Owner)" icon="mdi-account-network" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">Tells the Manager to upgrade Chefs from v1 to v2 smoothly.</p>
-  </Admonition>
-  <Admonition color="rose" title="5. Service (The Waiter)" icon="mdi-room-service" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">Distributes orders to whichever Chef in the back is currently free.</p>
-  </Admonition>
-  <Admonition color="orange" title="6. Ingress (Hostess)" icon="mdi-door-open" customTitle="text-sm">
-    <p class="text-[10px] text-slate-200">Stands at the front door. Directs users to the correct dining room.</p>
-  </Admonition>
-</div>
+- **Docker Swarm:** Built by Docker. Very easy ("Just like Compose") but struggled with complex enterprise primitives.
+- **Apache Mesos:** "The Datacenter OS". Powerhouse for Twitter/Airbnb, but proved too complex for average teams to operate.
+- **Kubernetes (Borg's Child):** Won by providing the **perfect abstraction model** ("Desired State") and leveraging a massive open-source ecosystem. **The standard.**
 
 ---
 layout: fact
@@ -239,30 +203,6 @@ Let's verify our local cluster is healthy and ready for deployment.
 
 ---
 
-# Minikube Drivers: Choosing the Engine
-
-Minikube needs a way to create a virtualized environment. This is called a **Driver**.
-
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <Admonition color="blue" title="Docker (Recommended)" icon="mdi-docker" customTitle="text-sm">
-    <p class="text-[9px] text-slate-200">Runs K8s as a container. Extremely fast, lightweight, and works on all OS.</p>
-  </Admonition>
-  <Admonition color="orange" title="VirtualBox / VMware" icon="mdi-vanity-light" customTitle="text-sm">
-    <p class="text-[9px] text-slate-200">Traditional VMs. Better isolation but slower and uses more RAM.</p>
-  </Admonition>
-  <Admonition color="slate" title="QEMU / Hyperkit" icon="mdi-console-line" customTitle="text-sm">
-    <p class="text-[9px] text-slate-200">Native virtualization. Great for Mac M1/M2/M3 users.</p>
-  </Admonition>
-</div>
-
-<div class="mt-6">
-  <Admonition color="amber" title="How to specify?" icon="mdi-code-tags">
-    <code class="text-xs">minikube start --driver=docker</code>
-  </Admonition>
-</div>
-
----
-
 # Resource Management: Tuning your Cluster
 
 Don't let Minikube starve your laptop or crash because it's too small.
@@ -339,9 +279,9 @@ How do you visit your app if it's trapped inside a Docker container or VM?
 layout: section
 ---
 
-# Section 1: Kubernetes Networking Deep Dive
+# Networking Deep Dive: How Containers Communicate
 
-How do containers actually talk to each other?
+The mechanics that make deployment strategies possible
 
 ---
 
@@ -461,6 +401,233 @@ If `LoadBalancer` exposes apps to the internet, why isn't it enough?
 <div class="mt-6 text-center text-xl font-bold bg-green-100 p-2 rounded text-green-900">
   Solution: We need a Layer 7 router. We need INGRESS.
 </div>
+
+---
+layout: section
+---
+
+# Section 2: Advanced Deployment Strategies
+
+Every deployment decision is a risk management decision.
+
+---
+
+# Why Strategy Matters
+
+In Kubernetes, a "deployment" isn't just about getting new code running — it's about managing **risk across four dimensions**: availability, correctness, performance, and rollback. 
+
+Choosing the wrong strategy doesn't just cause downtime; it can **corrupt state**, split user sessions, or make rollback impossible without data loss.
+
+<div v-click class="mt-8">
+  <Admonition color="blue" title="The Core Tension" icon="mdi-scale-balance">
+    <p class="text-xs">Every strategy balances <b>Speed of Delivery</b> vs. <b>Blast Radius of Failure</b>.</p>
+  </Admonition>
+</div>
+
+---
+
+# The Internal Model: 3 Planes
+
+Before choosing a strategy, understand these independent planes:
+
+<div class="grid grid-cols-3 gap-4 mt-8">
+  <Admonition color="blue" title="1. The Pod Plane" icon="mdi-podium">
+    <p class="text-[10px] text-slate-200">Which version (v1 or v2) is actually running. v2 can exist with <b>zero</b> user impact if no traffic reaches it.</p>
+  </Admonition>
+  <Admonition color="green" title="2. The Traffic Plane" icon="mdi-router-wireless">
+    <p class="text-[10px] text-slate-200">Managed by Service selectors, Ingress rules, or Mesh policies. Decoupled from Pod existence.</p>
+  </Admonition>
+  <Admonition color="amber" title="3. The State Plane" icon="mdi-database">
+    <p class="text-[10px] text-slate-200">DBs, Caches, APIs. <b>The danger zone</b>. v2 schema changes can break v1 code still running.</p>
+  </Admonition>
+</div>
+
+---
+
+# Rolling Updates: The Hidden Danger
+
+Every deployment decision is a risk management decision. K8s default strategy feels safe but carries a subtle risk: **v1 and v2 serve traffic simultaneously**.
+
+<div class="mt-4 bg-rose-900/20 p-4 rounded border-l-4 border-rose-500">
+  <p class="text-xs font-bold text-rose-400 uppercase tracking-widest mb-2">🔥 War Story: The "FastData Corp" Incident</p>
+  <p class="text-[10px] text-slate-300 leading-tight">
+    <b>Scenario:</b> A team renamed the <code>full_name</code> database column to <code>user_display_name</code> and shipped the code in a single rolling update.<br/>
+    <b>Result:</b> For 5 minutes, 50% of traffic hit v1 pods (expecting the old name) and crashed, while the other 50% hit v2 and worked. The partial failure made it nightmare to debug because "it worked for some users."
+  </p>
+</div>
+
+<div class="mt-4 space-y-4">
+  <Admonition color="rose" title="The Bi-directionality Requirement" icon="mdi-swap-horizontal-bold">
+    <p class="text-[11px] mb-2 leading-relaxed">If v1 and v2 run at the same time, your app must be backward and forward compatible with itself during the rollout window.</p>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-slate-900/50 p-2 rounded">
+        <p class="text-[9px] font-bold text-orange-400 uppercase">Database Schema</p>
+        <p class="text-[9px] text-slate-300">If v2 renames <code>user_name</code> to <code>full_name</code>, the v1 pods still running will crash immediately. <b>Rename is a breaking change.</b></p>
+      </div>
+      <div class="bg-slate-900/50 p-2 rounded">
+        <p class="text-[9px] font-bold text-blue-400 uppercase">Cache Key Collision</p>
+        <p class="text-[9px] text-slate-300">If v2 changes the Redis key format for <code>session:{id}</code>, v1 and v2 will constantly overwrite or invalidate each other's data.</p>
+      </div>
+    </div>
+  </Admonition>
+</div>
+
+| Parameter | Role | Benefit |
+|-----------|------|---------|
+| `maxSurge` | **Velocity** | Faster rollout, but uses more resources. |
+| `maxUnavailable` | **Capacity** | Protects server load, but slows down the "danger window". |
+
+---
+
+# Blue/Green: The Atomic Switch?
+
+Every deployment decision is a risk management decision. Run two identical environments, then flip the switch.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+  <div class="text-xs space-y-4 text-slate-300">
+    <h3 class="font-bold text-blue-400">The Implementation</h3>
+    <p>1. Deploy v2 (Green) with same capacity as v1 (Blue).<br/>2. Verify v2 is healthy.<br/>3. Update Service selector <code>version: v2</code>.</p>
+    <p class="italic text-slate-400 mt-2"> traffic cutover is atomic, but in-flight connections on Blue must be drained.</p>
+  </div>
+  <Admonition color="amber" title="Forward-Only Migrations" icon="mdi-undo-variant">
+    <p class="text-[10px] text-slate-200 leading-relaxed">If Green writes a DB record in v2 format, Blue (rollback target) might not be able to read it. Use <b>Forward-Only migrations</b> for true safety.</p>
+  </Admonition>
+</div>
+
+---
+
+# Canary: Deployment as Experiment
+
+Every deployment decision is a risk management decision. Treat deployment as a controlled experiment to falsify the hypothesis: *"v2 is as reliable as v1."*
+
+<div class="grid grid-cols-2 gap-8 mt-6 text-xs">
+  <Admonition color="blue" title="Analysis over Time" icon="mdi-clock-check">
+    <ul class="list-disc ml-4 space-y-1 text-slate-300">
+      <li><b>Sample Rate:</b> 10% for 5 mins = weak signal.</li>
+      <li><b>Observation:</b> 10% for 2 hours = captures background jobs & edge cases.</li>
+    </ul>
+  </Admonition>
+  <Admonition color="green" title="Beyond 5xx Rates" icon="mdi-chart-bell-curve">
+    <ul class="list-disc ml-4 space-y-1 text-slate-200">
+      <li>System: Latency p99, Memory leaks.</li>
+      <li>Business: Checkout rate, session length.</li>
+    </ul>
+  </Admonition>
+</div>
+
+---
+
+# A/B Testing vs. Canary
+
+Similar technical machinery, but **success criteria** are fundamentally different.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <Admonition color="slate" title="Canary (System Safety)" icon="mdi-security">
+    <p class="text-[10px] text-slate-300 italic">"Is it safe to replace v1?"</p>
+    <p class="text-[10px] mt-2">Probabilistic split (each request has 10% chance).</p>
+  </Admonition>
+  <Admonition color="blue" title="A/B Testing (Product Value)" icon="mdi-test-tube">
+    <p class="text-[10px] text-slate-300 italic">"Does variant B produce better outcomes?"</p>
+    <p class="text-[10px] mt-2"><b>Sticky routing</b> (user A always sees variant A) to avoid session contamination.</p>
+  </Admonition>
+</div>
+
+---
+
+# Shadow Deployment
+
+Mirror traffic to v2, but discard the response. Users only see v1's result.
+
+<div class="mt-8 space-y-4">
+  <Admonition color="green" title="Zero User Risk" icon="mdi-shield-check">
+    <p class="text-xs">Observe v2 latency, error rate, and complexity under real production load with <b>zero blast radius</b>.</p>
+  </Admonition>
+  <Admonition color="rose" title="The Side-Effect Trap" icon="mdi-email-alert">
+    <p class="text-xs">Impractical for transactional services. If v2 sends an email or charges a credit card, mirroring it means <b>double-charging</b> the user.</p>
+    <p class="text-[10px] mt-2 font-bold text-rose-400 italic">Solution: Use feature flags to disable side effects in shadow mode.</p>
+  </Admonition>
+</div>
+
+---
+
+# The State Problem: Expand/Contract
+
+<div class="grid grid-cols-2 gap-4 mb-4">
+  <div class="bg-rose-900/20 p-2 rounded border border-rose-500">
+    <p class="text-[9px] font-bold text-rose-400 uppercase">❌ The "Instant Crash" (Common Mistake)</p>
+    <p class="text-[8px] text-slate-300"><code>ALTER TABLE users RENAME COLUMN name TO full_name;</code><br/>One deploy ships this DB change + v2 code. <b>Result:</b> Existing v1 pods crash immediately as "name" disappears.</p>
+  </div>
+  <div class="bg-green-900/20 p-2 rounded border border-green-500">
+    <p class="text-[9px] font-bold text-green-400 uppercase">✅ The "Expand & Contract" (The Right Way)</p>
+    <p class="text-[8px] text-slate-300">Phase 1: Add new column. Phase 2: Backfill & Read new. Phase 3: Drop old. <b>Result:</b> Zero downtime, safe rollback always possible.</p>
+  </div>
+</div>
+
+<Admonition color="rose" title="⚠️ Production Gotcha" icon="mdi-alert-circle" customTitle="text-sm font-bold">
+  <p class="text-[10px] text-slate-200">This is <b>always 3 separate deployments</b>. Most production outages during schema migrations happen because teams rush all 3 phases into one deploy — where v1 and v2 coexist, a single-step rename means <b>instant downtime</b>.</p>
+</Admonition>
+
+<div class="grid grid-cols-3 gap-2 mt-3">
+  <div class="bg-slate-800 p-3 rounded border border-blue-700">
+    <h3 class="text-blue-400 font-bold text-xs uppercase">1. Expand</h3>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-blue-900/30 px-1 rounded">Release A — Ship &amp; Wait</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Add the new column <code>full_name</code> but <b>keep</b> <code>first_name</code>. Update app to write to <b>both</b> but read from <b>old</b>. Both v1 and v2 remain happy.</p>
+  </div>
+  <div class="bg-slate-800 p-3 rounded border border-orange-700">
+    <h3 class="text-orange-400 font-bold text-xs uppercase">2. Migrate</h3>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-orange-900/30 px-1 rounded">Release B — Flip Read</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Flip the app logic: read from <code>full_name</code>. Run a background job to backfill old records. v1 data is still intact for safe rollback.</p>
+  </div>
+  <div class="bg-slate-800 p-3 rounded border border-green-700">
+    <h3 class="text-green-400 font-bold text-xs uppercase">3. Contract</h3>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-green-900/30 px-1 rounded">Release C — Clean Up</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Only <i>after</i> 100% of traffic has migrated: drop the old <code>first_name</code> column. The rename is now safely complete.</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-2 mt-3">
+  <Admonition color="slate" title="The Anti-Pattern" icon="mdi-close-circle" customTitle="text-xs">
+    <p class="text-[9px] text-slate-300"><code>ALTER TABLE RENAME COLUMN first_name TO full_name</code> in the same deploy as v2 code = immediate crash for every v1 pod still running. Never do this.</p>
+  </Admonition>
+  <Admonition color="blue" title="The Timeline Rule" icon="mdi-calendar-clock" customTitle="text-xs">
+    <p class="text-[9px] text-slate-300">Deploy A → verify stability (hours or days) → Deploy B → wait for backfill → Deploy C. Never rush to Contract.</p>
+  </Admonition>
+</div>
+---
+
+# Progressive Delivery
+
+The unifying theory where deployment is a continuous expansion of exposure surface.
+
+<div class="mt-8 bg-slate-800 p-4 border border-slate-700 rounded-lg">
+  <p class="text-center font-bold text-blue-400 mb-4">The Pipeline Model</p>
+  <div class="flex items-center justify-between text-[10px] text-slate-300 uppercase tracking-widest">
+    <span>Internal</span>
+    <mdi-chevron-right/>
+    <span>Synthetic Canary</span>
+    <mdi-chevron-right/>
+    <span>1% Traffic</span>
+    <mdi-chevron-right/>
+    <span>10% Traffic</span>
+    <mdi-chevron-right/>
+    <span>100%</span>
+  </div>
+</div>
+
+<p class="text-sm italic mt-8 text-center text-slate-400">Reframes deployment from human judgment to scientific observation.</p>
+
+---
+
+# Choosing a Strategy
+
+| Decision Framework | Choose... |
+|--------------------|-----------|
+| **Instant Rollback (Seconds)** | Blue/Green |
+| **Silent/Slow Failure Mode** | Long Canary or Shadow |
+| **High Resource Constraints** | Rolling Update |
+| **Strict Session Persistence** | Sticky Canary or A/B |
+
+**The Modern Meta:** Blue/Green for cutover + Progressive Canary for exposure + Expand/Contract for DB.
 
 ---
 layout: section
@@ -590,6 +757,26 @@ When database instances need their identity to survive reboots.
 
 ---
 
+# Understanding Pod Status
+
+What exactly is happening when a Pod isn't `Running`?
+
+<div class="grid grid-cols-3 gap-4 mt-8">
+  <Admonition color="orange" title="1. Pending" icon="mdi-clock-outline">
+    <p class="text-[10px] text-slate-200">The Scheduler hasn't found a home for the Pod yet (lack of resources, taints) OR the image is still being pulled from the registry.</p>
+  </Admonition>
+  <Admonition color="blue" title="2. Running" icon="mdi-play-circle-outline">
+    <p class="text-[10px] text-slate-200">The Pod has been bound to a Node and at least one container is either starting or running. <b>Note:</b> "Running" does NOT mean "Healthy" (check Probes!).</p>
+  </Admonition>
+  <Admonition color="slate" title="3. Terminating" icon="mdi-stop-circle-outline">
+    <p class="text-[10px] text-slate-200">The Pod is being gracefully shut down. It allows <code>preStop</code> hooks and SIGTERM signals to finish before the container is killed.</p>
+  </Admonition>
+</div>
+
+---
+
+---
+
 # DaemonSets and Jobs
 
 <div class="grid grid-cols-2 gap-8 mt-8">
@@ -663,9 +850,9 @@ Assume every developer will accidentally write a memory leak.
 layout: section
 ---
 
-# Section 2: Ingress & Service Exposure
+# Section 3: Networking, Architecture & Advanced Workloads
 
-Smart routing for the modern web
+Supporting context for our deployment strategies
 
 ---
 
@@ -876,15 +1063,19 @@ Do not hardcode configuration into your Docker Images!
 - Injected via **Mounted Volume Files** (best for complex `nginx.conf`).
 
 ### Secrets
-- <Admonition color="rose" title="SECURITY WARNING" icon="mdi-shield-alert" customTitle="text-sm font-bold">
-    <p class="text-[10px] text-slate-200 uppercase tracking-wider">
-      Secrets are <b>Base64 encoded (NOT encrypted)</b> by default.
-    </p>
-    <p class="text-[10px] text-slate-300 mt-1 italic">
-      Anyone with <code>kubectl</code> access can decode them instantly.
-    </p>
-  </Admonition>
-- **Production Rule:** Never commit raw Secrets to Git. You <b>must</b> use a bridge to secure storage (see next slide: SealedSecrets).
+### Secrets
+
+<Admonition color="rose" title="🚨 CRITICAL: Secrets Are NOT Encrypted" icon="mdi-shield-alert" customTitle="text-sm font-bold">
+  <p class="text-[10px] text-slate-200 uppercase tracking-wider font-bold">Secrets are <b>Base64 encoded — NOT encrypted.</b> Anyone with <code>kubectl get secret</code> can read them.</p>
+  <div class="mt-2 bg-slate-950 p-2 rounded font-mono text-[9px] text-rose-300">
+    # Anyone can decode your database password in one second:<br/>
+    $ kubectl get secret db-pass -o jsonpath='{.data.password}' | base64 -d<br/>
+    <span class="text-rose-400 font-bold">→ my-super-secret-password</span>
+  </div>
+  <p class="text-[9px] text-rose-400 font-bold mt-2">→ Avoid "Security by Obscurity". Use SealedSecrets or Vault.</p>
+</Admonition>
+
+- **Production Rule:** Never commit raw Secrets to Git. You <b>must</b> use encrypted storage (see next slide: SealedSecrets).
 
 </div>
 <div>
@@ -923,210 +1114,7 @@ If everything in K8s is declarative YAML stored in Git, **where do you put the D
 
 ---
 
-# Advanced Deployment Strategies
-
-### Theory Deep Dive
-
----
-
-# Why Strategy Matters
-
-In Kubernetes, a "deployment" isn't just about getting new code running — it's about managing **risk across four dimensions**: availability, correctness, performance, and rollback. 
-
-Choosing the wrong strategy doesn't just cause downtime; it can **corrupt state**, split user sessions, or make rollback impossible without data loss.
-
-<div v-click class="mt-8">
-  <Admonition color="blue" title="The Core Tension" icon="mdi-scale-balance">
-    <p class="text-xs">Every strategy balances <b>Speed of Delivery</b> vs. <b>Blast Radius of Failure</b>.</p>
-  </Admonition>
-</div>
-
----
-
-# The Internal Model: 3 Planes
-
-Before choosing a strategy, understand these independent planes:
-
-<div class="grid grid-cols-3 gap-4 mt-8">
-  <Admonition color="blue" title="1. The Pod Plane" icon="mdi-podium">
-    <p class="text-[10px] text-slate-200">Which version (v1 or v2) is actually running. v2 can exist with <b>zero</b> user impact if no traffic reaches it.</p>
-  </Admonition>
-  <Admonition color="green" title="2. The Traffic Plane" icon="mdi-router-wireless">
-    <p class="text-[10px] text-slate-200">Managed by Service selectors, Ingress rules, or Mesh policies. Decoupled from Pod existence.</p>
-  </Admonition>
-  <Admonition color="amber" title="3. The State Plane" icon="mdi-database">
-    <p class="text-[10px] text-slate-200">DBs, Caches, APIs. <b>The danger zone</b>. v2 schema changes can break v1 code still running.</p>
-  </Admonition>
-</div>
-
----
-
-# Rolling Updates: The Hidden Danger
-
-K8s default strategy. It feels safe but carries a subtle risk: **v1 and v2 serve traffic simultaneously**.
-
-<div class="mt-8 space-y-4">
-  <Admonition color="rose" title="The Bi-directionality Requirement" icon="mdi-swap-horizontal-bold">
-    <p class="text-[11px] mb-2 leading-relaxed">If v1 and v2 run at the same time, your app must be backward and forward compatible with itself during the rollout window.</p>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-slate-900/50 p-2 rounded">
-        <p class="text-[9px] font-bold text-orange-400 uppercase">Database Schema</p>
-        <p class="text-[9px] text-slate-300">If v2 renames <code>user_name</code> to <code>full_name</code>, the v1 pods still running will crash immediately. <b>Rename is a breaking change.</b></p>
-      </div>
-      <div class="bg-slate-900/50 p-2 rounded">
-        <p class="text-[9px] font-bold text-blue-400 uppercase">Cache Key Collision</p>
-        <p class="text-[9px] text-slate-300">If v2 changes the Redis key format for <code>session:{id}</code>, v1 and v2 will constantly overwrite or invalidate each other's data.</p>
-      </div>
-    </div>
-  </Admonition>
-</div>
-
-| Parameter | Role | Benefit |
-|-----------|------|---------|
-| `maxSurge` | **Velocity** | Faster rollout, but uses more resources. |
-| `maxUnavailable` | **Capacity** | Protects server load, but slows down the "danger window". |
-
----
-
-# Blue/Green: The Atomic Switch?
-
-Run two identical environments, then flip the switch.
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-  <div class="text-xs space-y-4 text-slate-300">
-    <h3 class="font-bold text-blue-400">The Implementation</h3>
-    <p>1. Deploy v2 (Green) with same capacity as v1 (Blue).<br/>2. Verify v2 is healthy.<br/>3. Update Service selector <code>version: v2</code>.</p>
-    <p class="italic text-slate-400 mt-2"> traffic cutover is atomic, but in-flight connections on Blue must be drained.</p>
-  </div>
-  <Admonition color="amber" title="Forward-Only Migrations" icon="mdi-undo-variant">
-    <p class="text-[10px] text-slate-200 leading-relaxed">If Green writes a DB record in v2 format, Blue (rollback target) might not be able to read it. Use <b>Forward-Only migrations</b> for true safety.</p>
-  </Admonition>
-</div>
-
----
-
-# Canary: Deployment as Experiment
-
-Treat deployment as a controlled experiment to falsify the hypothesis: *"v2 is as reliable as v1."*
-
-<div class="grid grid-cols-2 gap-8 mt-6 text-xs">
-  <Admonition color="blue" title="Analysis over Time" icon="mdi-clock-check">
-    <ul class="list-disc ml-4 space-y-1 text-slate-300">
-      <li><b>Sample Rate:</b> 10% for 5 mins = weak signal.</li>
-      <li><b>Observation:</b> 10% for 2 hours = captures background jobs & edge cases.</li>
-    </ul>
-  </Admonition>
-  <Admonition color="green" title="Beyond 5xx Rates" icon="mdi-chart-bell-curve">
-    <ul class="list-disc ml-4 space-y-1 text-slate-200">
-      <li>System: Latency p99, Memory leaks.</li>
-      <li>Business: Checkout rate, session length.</li>
-    </ul>
-  </Admonition>
-</div>
-
----
-
-# A/B Testing vs. Canary
-
-Similar technical machinery, but **success criteria** are fundamentally different.
-
-<div class="grid grid-cols-2 gap-8 mt-8">
-  <Admonition color="slate" title="Canary (System Safety)" icon="mdi-security">
-    <p class="text-[10px] text-slate-300 italic">"Is it safe to replace v1?"</p>
-    <p class="text-[10px] mt-2">Probabilistic split (each request has 10% chance).</p>
-  </Admonition>
-  <Admonition color="blue" title="A/B Testing (Product Value)" icon="mdi-test-tube">
-    <p class="text-[10px] text-slate-300 italic">"Does variant B produce better outcomes?"</p>
-    <p class="text-[10px] mt-2"><b>Sticky routing</b> (user A always sees variant A) to avoid session contamination.</p>
-  </Admonition>
-</div>
-
----
-
-# Shadow Deployment
-
-Mirror traffic to v2, but discard the response. Users only see v1's result.
-
-<div class="mt-8 space-y-4">
-  <Admonition color="green" title="Zero User Risk" icon="mdi-shield-check">
-    <p class="text-xs">Observe v2 latency, error rate, and complexity under real production load with <b>zero blast radius</b>.</p>
-  </Admonition>
-  <Admonition color="rose" title="The Side-Effect Trap" icon="mdi-email-alert">
-    <p class="text-xs">Impractical for transactional services. If v2 sends an email or charges a credit card, mirroring it means <b>double-charging</b> the user.</p>
-  </Admonition>
-</div>
-
----
-
-# The State Problem: Expand/Contract
-
-Every deployment ultimately fails or succeeds at the database layer.
-
-<div class="grid grid-cols-3 gap-2 mt-4">
-  <div class="bg-slate-800 p-3 rounded border border-slate-700">
-    <h3 class="text-blue-400 font-bold text-xs uppercase">1. Expand</h3>
-    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-blue-900/30 px-1 rounded">Release A</p>
-    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Add the new column <code>full_name</code> but <b>keep</b> <code>first_name</code>. Update app to write to <b>both</b> but read from <b>old</b>. Both v1 and v2 remain happy.</p>
-  </div>
-  <div class="bg-slate-800 p-3 rounded border border-slate-700">
-    <h3 class="text-orange-400 font-bold text-xs uppercase">2. Migrate</h3>
-    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-orange-900/30 px-1 rounded">Release B</p>
-    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Flip the app logic: Read from <code>full_name</code>. Run a background job to backfill old records. If something breaks, v1 data is still there for rollback.</p>
-  </div>
-  <div class="bg-slate-800 p-3 rounded border border-slate-700">
-    <h3 class="text-green-400 font-bold text-xs uppercase">3. Contract</h3>
-    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-green-900/30 px-1 rounded">Release C</p>
-    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Now that 100% of traffic uses the new column, delete the old <code>first_name</code> column. The "Renaming" is now safely complete across 3 deployments.</p>
-  </div>
-</div>
-
-<Admonition color="blue" title="Why do this?" icon="mdi-help-circle" class="mt-4">
-  <p class="text-[10px] text-slate-200">
-    Most teams fail by trying to do all 3 steps in <b>one</b> deployment. In Kubernetes, where v1 and v2 coexist, this is a recipe for 100% downtime.
-  </p>
-</Admonition>
-
----
-
-# Progressive Delivery
-
-The unifying theory where deployment is a continuous expansion of exposure surface.
-
-<div class="mt-8 bg-slate-800 p-4 border border-slate-700 rounded-lg">
-  <p class="text-center font-bold text-blue-400 mb-4">The Pipeline Model</p>
-  <div class="flex items-center justify-between text-[10px] text-slate-300 uppercase tracking-widest">
-    <span>Internal</span>
-    <mdi-chevron-right/>
-    <span>Synthetic Canary</span>
-    <mdi-chevron-right/>
-    <span>1% Traffic</span>
-    <mdi-chevron-right/>
-    <span>10% Traffic</span>
-    <mdi-chevron-right/>
-    <span>100%</span>
-  </div>
-</div>
-
-<p class="text-sm italic mt-8 text-center text-slate-400">Reframes deployment from human judgment to scientific observation.</p>
-
----
-
-# Choosing a Strategy
-
-| Decision Framework | Choose... |
-|--------------------|-----------|
-| **Instant Rollback (Seconds)** | Blue/Green |
-| **Silent/Slow Failure Mode** | Long Canary or Shadow |
-| **High Resource Constraints** | Rolling Update |
-| **Strict Session Persistence** | Sticky Canary or A/B |
-
-**The Modern Meta:** Blue/Green for cutover + Progressive Canary for exposure + Expand/Contract for DB.
-
----
-layout: section
----
-
-# Section 3: Debugging Kubernetes
+# Section 4: Debugging Kubernetes
 
 The systematic troubleshooting workflow
 
@@ -1149,6 +1137,9 @@ When an app is down, follow the traffic from the inside out:
   <Admonition color="orange" title="4. Ingress: The Entry" icon="mdi-routes">
     <p class="text-[9px] text-slate-200 leading-tight">Check <code>describe ingress</code>. Common pitfalls: host typo (<code>api.devops.locl</code>) or wrong path prefix (<code>/api</code> vs <code>/api/</code>).</p>
   </Admonition>
+  <Admonition color="rose" title="5. The Ghost: 502 Bad Gateway" icon="mdi-ghost">
+    <p class="text-[9px] text-slate-200 leading-tight">The Pod is <code>Running</code>, but users get 502s. <b>Diagnosis:</b> Is the app listening on <code>0.0.0.0</code> (all interfaces) or just <code>127.0.0.1</code>? Is the <code>targetPort</code> correct?</p>
+  </Admonition>
 </div>
 
 <div class="mt-4 bg-slate-900 p-3 rounded border border-slate-700">
@@ -1162,6 +1153,54 @@ When an app is down, follow the traffic from the inside out:
 </div>
 
 ---
+
+# Diagnosing: What Does `describe pod` Actually Tell You?
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div>
+    <p class="text-green-400 font-bold text-[9px] uppercase mb-1">✅ Healthy Pod</p>
+    <div class="bg-slate-900 p-2 rounded font-mono text-[8px] text-green-300 leading-relaxed">
+      Status: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running<br/>
+      Conditions:<br/>
+      &nbsp;&nbsp;Ready: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;True<br/>
+      &nbsp;&nbsp;ContainersReady: True<br/>
+      Restart Count: 0<br/>
+      <br/>
+      Events:<br/>
+      &nbsp;&nbsp;Normal Pulled &nbsp;Successfully pulled image<br/>
+      &nbsp;&nbsp;Normal Started Container started successfully
+    </div>
+  </div>
+  <div>
+    <p class="text-rose-400 font-bold text-[9px] uppercase mb-1">❌ Unhealthy Pod (CrashLoopBackOff)</p>
+    <div class="bg-slate-900 p-2 rounded font-mono text-[8px] text-rose-300 leading-relaxed">
+      Status: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CrashLoopBackOff<br/>
+      Conditions:<br/>
+      &nbsp;&nbsp;Ready: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;False<br/>
+      &nbsp;&nbsp;ContainersReady: False<br/>
+      Restart Count: <span class="text-rose-400 font-bold">8</span><br/>
+      <br/>
+      Events:<br/>
+      &nbsp;&nbsp;Warning BackOff &nbsp;Back-off restarting failed container<br/>
+      &nbsp;&nbsp;Warning Failed &nbsp;<span class="text-rose-400">Error: failed to create task: DB_URL not found</span>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-3 gap-2 mt-4">
+  <Admonition color="blue" title="Label Mismatch Symptom" icon="mdi-tag-off" customTitle="text-xs">
+    <p class="text-[9px]"><code>kubectl describe svc</code> → Endpoints: <b class="text-rose-400">&lt;none&gt;</b>. Fix: align <code>selector</code> in Service with <code>labels</code> on Pod.</p>
+  </Admonition>
+  <Admonition color="orange" title="Port Mismatch Symptom" icon="mdi-connection" customTitle="text-xs">
+    <p class="text-[9px]">Logs show <b class="text-rose-400">connection refused</b>. Fix: <code>targetPort</code> in Service must match the port your app <i>actually</i> listens on.</p>
+  </Admonition>
+  <Admonition color="slate" title="Namespace DNS Issue" icon="mdi-map-marker-off" customTitle="text-xs">
+    <p class="text-[9px]">Logs show <b class="text-rose-400">NXDOMAIN</b>. Fix: cross-namespace calls need FQDN: <code>svc.namespace.svc.cluster.local</code></p>
+  </Admonition>
+</div>
+
+---
+
 
 # Common Error 1: CrashLoopBackOff
 
@@ -1252,7 +1291,7 @@ Specific tools for your local development environment:
 layout: section
 ---
 
-# Section 4: Practice - Deploy & Debug
+# Section 5: Practice - Deploy & Debug
 Live Demonstration on Minikube / K3s
 
 ---
