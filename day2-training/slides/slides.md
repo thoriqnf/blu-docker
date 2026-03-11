@@ -86,13 +86,13 @@ Why did Kubernetes win?
 
 - **Docker Swarm:**
   - Built by Docker. Very easy to use. "Just like Docker Compose but for servers."
-  - **Status:** Struggled with complex enterprise networking and stateful storage at scale.
+  - **Status:** Simple but ultimately lacked the robust ecosystem required for enterprise scale.
 - **Apache Mesos:**
   - "The Datacenter OS". Running Twitter and Airbnb at massive scale.
-  - **Status:** Incredibly difficult to install and manage. Required a PhD in distributed systems.
+  - **Status:** Powerful and genuinely impressive technology, but complex to operate for average teams.
 - **Kubernetes (Borg's Child):**
   - Based on 15 years of running Google Search (Borg).
-  - **Status:** Highly extensible API, declarative "Desired State" architecture. **The Winner.**
+  - **Status:** Won due to the right abstraction model ("Desired State") and the massive weight of Google's ecosystem behind it. **The Winner.**
 
 ---
 layout: section
@@ -491,7 +491,7 @@ The ultimate brain and memory of the cluster.
 - `etcd` requires a majority (Quorum) to agree on a state change.
 - `(N / 2) + 1` = Quorum.
 - If you have 3 Master Nodes, you can lose 1 and survive.
-- If you have 2 Master Nodes and lose 1, your entire cluster enters read-only lock down! (Never use an even number of Masters).
+- **Production Gotcha:** Always use an odd number of master nodes (3, 5, or 7). If you have 2 Master Nodes and lose 1, your entire cluster loses consensus and enters read-only lockdown!
 
 </div>
 </div>
@@ -876,9 +876,10 @@ Do not hardcode configuration into your Docker Images!
 - Injected via **Mounted Volume Files** (best for complex `nginx.conf`).
 
 ### Secrets
-- Base64 encoded (NOT encrypted) key-value pairs.
+- **WARNING:** Base64 encoded (**NOT encrypted**) key-value pairs.
 - Same injection methods as ConfigMaps.
 - Easily intercepted by anyone who runs `kubectl get secrets`.
+- **Production Rule:** Never commit raw Secrets to Git. You must use tools like SealedSecrets or External Secrets (covered later).
 
 </div>
 <div>
@@ -961,7 +962,11 @@ K8s default strategy. It feels safe but carries a subtle risk: **v1 and v2 serve
 
 <div class="mt-8 space-y-4">
   <Admonition color="rose" title="The Bi-directionality Requirement" icon="mdi-swap-horizontal-bold">
-    <p class="text-xs">If v2 renames a DB column, v1 pods will crash. Your app must be backward-compatible with itself during the rollout window.</p>
+    <p class="text-[11px] mb-2 leading-relaxed">If v1 and v2 run at the same time, your app must be backward and forward compatible with itself during the rollout window.</p>
+    <ul class="text-[10px] space-y-1 text-slate-200 list-disc ml-4">
+      <li><b>DB Example:</b> If v2 renames a DB column, v1 pods will crash when trying to read the old column name.</li>
+      <li><b>Cache Example:</b> If v2 changes the Redis cache key format, v1 and v2 will constantly overwrite/invalidate each other's cached data.</li>
+    </ul>
   </Admonition>
 </div>
 
