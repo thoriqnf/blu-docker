@@ -86,13 +86,13 @@ Why did Kubernetes win?
 
 - **Docker Swarm:**
   - Built by Docker. Very easy to use. "Just like Docker Compose but for servers."
-  - **Status:** Simple but ultimately lacked the robust ecosystem required for enterprise scale.
+  - **Status:** Simple and elegant for small stacks, but struggled to build the complex primitives needed for large-scale enterprise automation.
 - **Apache Mesos:**
-  - "The Datacenter OS". Running Twitter and Airbnb at massive scale.
-  - **Status:** Powerful and genuinely impressive technology, but complex to operate for average teams.
+  - "The Datacenter OS". A powerhouse that ran Twitter and Airbnb at massive scale.
+  - **Status:** Genuinely impressive, industrial-grade technology, but proved too complex for average teams to operate.
 - **Kubernetes (Borg's Child):**
   - Based on 15 years of running Google Search (Borg).
-  - **Status:** Won due to the right abstraction model ("Desired State") and the massive weight of Google's ecosystem behind it. **The Winner.**
+  - **Status:** Won by providing the **perfect abstraction model** ("Desired State") and leveraging the massive momentum of the open-source ecosystem. **The standard.**
 
 ---
 layout: section
@@ -488,10 +488,10 @@ The ultimate brain and memory of the cluster.
 <div>
 
 ### How it works (Raft Consensus)
-- `etcd` requires a majority (Quorum) to agree on a state change.
-- `(N / 2) + 1` = Quorum.
-- If you have 3 Master Nodes, you can lose 1 and survive.
-- **Production Gotcha:** Always use an odd number of master nodes (3, 5, or 7). If you have 2 Master Nodes and lose 1, your entire cluster loses consensus and enters read-only lockdown!
+- `etcd` requires a majority (**Quorum**) to agree on any state change.
+- Formula: `(N / 2) + 1` = Quorum.
+- **Critical Production Rule:** Always use an **odd number** of master nodes (3, 5, or 7).
+- **The Gotcha:** If you have 2 nodes and lose 1, you lose Quorum (need 2). The cluster enters a "read-only" panic mode. 3 nodes allows 1 failure; 5 allows 2.
 
 </div>
 </div>
@@ -876,10 +876,15 @@ Do not hardcode configuration into your Docker Images!
 - Injected via **Mounted Volume Files** (best for complex `nginx.conf`).
 
 ### Secrets
-- **WARNING:** Base64 encoded (**NOT encrypted**) key-value pairs.
-- Same injection methods as ConfigMaps.
-- Easily intercepted by anyone who runs `kubectl get secrets`.
-- **Production Rule:** Never commit raw Secrets to Git. You must use tools like SealedSecrets or External Secrets (covered later).
+- <Admonition color="rose" title="SECURITY WARNING" icon="mdi-shield-alert" customTitle="text-sm font-bold">
+    <p class="text-[10px] text-slate-200 uppercase tracking-wider">
+      Secrets are <b>Base64 encoded (NOT encrypted)</b> by default.
+    </p>
+    <p class="text-[10px] text-slate-300 mt-1 italic">
+      Anyone with <code>kubectl</code> access can decode them instantly.
+    </p>
+  </Admonition>
+- **Production Rule:** Never commit raw Secrets to Git. You <b>must</b> use a bridge to secure storage (see next slide: SealedSecrets).
 
 </div>
 <div>
@@ -963,10 +968,16 @@ K8s default strategy. It feels safe but carries a subtle risk: **v1 and v2 serve
 <div class="mt-8 space-y-4">
   <Admonition color="rose" title="The Bi-directionality Requirement" icon="mdi-swap-horizontal-bold">
     <p class="text-[11px] mb-2 leading-relaxed">If v1 and v2 run at the same time, your app must be backward and forward compatible with itself during the rollout window.</p>
-    <ul class="text-[10px] space-y-1 text-slate-200 list-disc ml-4">
-      <li><b>DB Example:</b> If v2 renames a DB column, v1 pods will crash when trying to read the old column name.</li>
-      <li><b>Cache Example:</b> If v2 changes the Redis cache key format, v1 and v2 will constantly overwrite/invalidate each other's cached data.</li>
-    </ul>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-slate-900/50 p-2 rounded">
+        <p class="text-[9px] font-bold text-orange-400 uppercase">Database Schema</p>
+        <p class="text-[9px] text-slate-300">If v2 renames <code>user_name</code> to <code>full_name</code>, the v1 pods still running will crash immediately. <b>Rename is a breaking change.</b></p>
+      </div>
+      <div class="bg-slate-900/50 p-2 rounded">
+        <p class="text-[9px] font-bold text-blue-400 uppercase">Cache Key Collision</p>
+        <p class="text-[9px] text-slate-300">If v2 changes the Redis key format for <code>session:{id}</code>, v1 and v2 will constantly overwrite or invalidate each other's data.</p>
+      </div>
+    </div>
   </Admonition>
 </div>
 
@@ -1051,20 +1062,29 @@ Mirror traffic to v2, but discard the response. Users only see v1's result.
 
 Every deployment ultimately fails or succeeds at the database layer.
 
-<div class="grid grid-cols-3 gap-2 mt-8">
+<div class="grid grid-cols-3 gap-2 mt-4">
   <div class="bg-slate-800 p-3 rounded border border-slate-700">
     <h3 class="text-blue-400 font-bold text-xs uppercase">1. Expand</h3>
-    <p class="text-[9px] text-slate-300 mt-2">Add new columns alongside old. App writes to both. Both versions function correctly.</p>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-blue-900/30 px-1 rounded">Release A</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Add the new column <code>full_name</code> but <b>keep</b> <code>first_name</code>. Update app to write to <b>both</b> but read from <b>old</b>. Both v1 and v2 remain happy.</p>
   </div>
   <div class="bg-slate-800 p-3 rounded border border-slate-700">
     <h3 class="text-orange-400 font-bold text-xs uppercase">2. Migrate</h3>
-    <p class="text-[9px] text-slate-300 mt-2">Background job backfills old data into new structure (Not part of the deployment!).</p>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-orange-900/30 px-1 rounded">Release B</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Flip the app logic: Read from <code>full_name</code>. Run a background job to backfill old records. If something breaks, v1 data is still there for rollback.</p>
   </div>
   <div class="bg-slate-800 p-3 rounded border border-slate-700">
     <h3 class="text-green-400 font-bold text-xs uppercase">3. Contract</h3>
-    <p class="text-[9px] text-slate-300 mt-2">Retire v1. Separate deployment to remove old columns. Strategy complete.</p>
+    <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-green-900/30 px-1 rounded">Release C</p>
+    <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Now that 100% of traffic uses the new column, delete the old <code>first_name</code> column. The "Renaming" is now safely complete across 3 deployments.</p>
   </div>
 </div>
+
+<Admonition color="blue" title="Why do this?" icon="mdi-help-circle" class="mt-4">
+  <p class="text-[10px] text-slate-200">
+    Most teams fail by trying to do all 3 steps in <b>one</b> deployment. In Kubernetes, where v1 and v2 coexist, this is a recipe for 100% downtime.
+  </p>
+</Admonition>
 
 ---
 
@@ -1116,19 +1136,29 @@ The systematic troubleshooting workflow
 
 When an app is down, follow the traffic from the inside out:
 
-<div class="grid grid-cols-2 gap-4 mt-6">
-  <Admonition color="blue" title="1. Is the Pod running?" icon="mdi-podium">
-    <p class="text-[10px] text-slate-200"><code>kubectl get pods</code>. If failing, Describe it immediately.</p>
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <Admonition color="blue" title="1. Pod: The Heartbeat" icon="mdi-podium">
+    <p class="text-[9px] text-slate-200 leading-tight"><code>kubectl get pods</code>. If status is NOT <code>Running</code>, run <code>describe pod</code> immediately. Check <b>Events</b> at the bottom—it's the cluster's diary of what went wrong.</p>
   </Admonition>
-  <Admonition color="slate" title="2. Are logs clean?" icon="mdi-text-box-search">
-    <p class="text-[10px] text-slate-200"><code>kubectl logs &lt;name&gt;</code>. Watch for application exceptions.</p>
+  <Admonition color="slate" title="2. Logs: The Evidence" icon="mdi-text-box-search">
+    <p class="text-[9px] text-slate-200 leading-tight"><code>kubectl logs &lt;name&gt;</code>. If the Pod is crash-looping, use <code>--previous</code> to see why the <i>last</i> instance died (e.g., DB Connection Refused).</p>
   </Admonition>
-  <Admonition color="green" title="3. Is Service targeting correct?" icon="mdi-target-variant">
-    <p class="text-[10px] text-slate-200"><code>kubectl describe svc</code>. Check <b>Endpoints</b>. If <code>&lt;none&gt;</code>, labels are wrong.</p>
+  <Admonition color="green" title="3. Service: The Target" icon="mdi-target-variant">
+    <p class="text-[9px] text-slate-200 leading-tight"><code>kubectl describe svc</code>. Look at <b>Endpoints</b>. If it's <code>&lt;none&gt;</code>, your Service <b>Selector</b> doesn't match your Pod <b>Labels</b>. Traffic has nowhere to go.</p>
   </Admonition>
-  <Admonition color="orange" title="4. Is Ingress routing correct?" icon="mdi-routes">
-    <p class="text-[10px] text-slate-200">Check hostnames and path prefixes in the Ingress YAML.</p>
+  <Admonition color="orange" title="4. Ingress: The Entry" icon="mdi-routes">
+    <p class="text-[9px] text-slate-200 leading-tight">Check <code>describe ingress</code>. Common pitfalls: host typo (<code>api.devops.locl</code>) or wrong path prefix (<code>/api</code> vs <code>/api/</code>).</p>
   </Admonition>
+</div>
+
+<div class="mt-4 bg-slate-900 p-3 rounded border border-slate-700">
+  <p class="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2">The Golden Rule of Debugging</p>
+  <p class="text-[10px] text-slate-300 italic italic">"Is it a Connection Refused (App Level) or a Timeout (Network Level)?"</p>
+  <ul class="text-[9px] mt-2 space-y-1 text-slate-400">
+    <li>• <b>Label Mismatch:</b> Service Endpoints will be empty.</li>
+    <li>• <b>Port Mismatch:</b> TargetPort doesn't match the app's listening port.</li>
+    <li>• <b>Namespacing:</b> Trying to reach a Service in <code>default</code> from a Pod in <code>prod</code> without the FQDN.</li>
+  </ul>
 </div>
 
 ---
@@ -1328,15 +1358,15 @@ Tools like **ArgoCD** invert the deployment logic to be secure and declarative.
     </p>
   </Admonition>
   
-  <Admonition color="green" title="3. Sync" icon="mdi-sync">
+  <Admonition color="green" title="3. Sync & Strategy" icon="mdi-sync">
     <p class="text-[10px] text-slate-200 leading-relaxed">
-      When the manifest in GitHub changes (new image tag!), ArgoCD "pulls" the change and applies it to the cluster securely from the inside.
+      When a manifest changes, ArgoCD pulls the new state. It doesn't just "apply"—with <b>Argo Rollouts</b>, it orchestrates Blue/Green or Canaries automatically.
     </p>
   </Admonition>
   
-  <Admonition color="rose" title="Security & Drift" icon="mdi-shield-check">
+  <Admonition color="rose" title="Closing the Loop" icon="mdi-infinity">
     <p class="text-[10px] text-slate-200 leading-relaxed">
-      K8s pulls from Git; Git never talks to K8s. If a human runs <code>kubectl delete</code> manually, ArgoCD instantly recreates it!
+      GitOps is how we enforce our <b>Risk Management</b> decisions (strategies) at scale. It turns "I hope this rollout works" into "The system will verify and progress based on metrics."
     </p>
   </Admonition>
 </div>
