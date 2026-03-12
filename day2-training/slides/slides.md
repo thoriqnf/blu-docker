@@ -1559,7 +1559,7 @@ When an app is down, follow the traffic from the inside out:
     </div>
     <div class="mt-2">
       <Admonition color="slate" title="Debug" icon="mdi-eye-check" customTitle="text-[10px]">
-        <code class=\"text-[8px]\">kubectl describe pod &lt;pod&gt;</code>
+        <code class="text-[8px]">kubectl describe pod &lt;pod&gt;</code>
       </Admonition>
     </div>
   </div>
