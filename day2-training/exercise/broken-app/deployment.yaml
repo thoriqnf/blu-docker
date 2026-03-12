@@ -15,6 +15,13 @@ spec:
       containers:
         - name: web
           image: busybox:latest
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
           # A mock app that crashes if DB_PASSWORD is not set
           command:
             - "/bin/sh"

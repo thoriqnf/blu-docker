@@ -1414,60 +1414,44 @@ Tools like **ArgoCD** invert the deployment logic to be secure and declarative.
 layout: section
 ---
 
-# Demo 4: ArgoCD & GitOps
-The automated pull model in action
-
----
-
-# Demo 4: ArgoCD & GitOps
-
-Seeing continuous deployment happen from the inside out.
-
-<div class="mt-8 space-y-4 bg-slate-800 p-4 rounded border border-slate-700 text-sm">
-
-**Instructor Demo:**
-1. **Access UI:** Port-forward and log into the local ArgoCD dashboard.
-2. **Deploy App:** Apply the `Application` YAML to tell ArgoCD to watch a GitHub repository.
-3. **Watch the Sync:** Push a manual commit changing an image from `v1` to `v2` on GitHub.
-4. **Auto-Heal:** Delete a Deployment manually via `kubectl delete` and watch ArgoCD instantly recreate it.
-
-</div>
-
----
-
-# ArgoCD Application Deep Dive
-
-How do you tell ArgoCD what to watch? You use a CRD called an `Application`.
-
-```yaml {all|5-7|9-11|13-16|all}
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: my-store-frontend
-  namespace: argocd
-spec:
-  source:
-    # 1. The GitHub Repo containing your Helm Chart or YAML
-    repoURL: 'https://github.com/my-org/store.git'
-    path: 'frontend'
-    targetRevision: HEAD
-  destination:
-    # 2. Deploy it locally into this cluster
-    server: 'https://kubernetes.default.svc'
-    namespace: store-prod
-  syncPolicy:
-    # 3. Automatically sync if Git changes. Auto-prune.
-    automated:
-      prune: true
-      selfHeal: true
-```
-
----
-layout: section
----
-
 # Hands-on Debugging Challenge
 ## The Broken E-Commerce App
 
 Navigate to the `exercise/` folder and open the `README.md`.
 You are the on-call DevOps engineer. Production is down. Good luck!
+
+---
+layout: section
+---
+
+# Section 5: Wrap-up & Summary
+The Journey from Docker to GitOps
+
+---
+
+# The Big Picture: Day 1 & Day 2
+
+<div class="grid grid-cols-2 gap-8 mt-4">
+<div>
+
+### Day 1: The Building Blocks
+- **Docker:** Packaging apps into portable artifacts.
+- **Images & Layers:** Efficiency via caching.
+- **Containers:** Isolated execution environments.
+- **Docker Compose:** Managing multi-container local environments.
+
+</div>
+<div>
+
+### Day 2: The Orchestrator
+- **Kubernetes:** Automating scaling and self-healing.
+- **Networking (L4):** Services (ClusterIP, NodePort, LoadBalancer).
+- **Ingress (L7):** Smart routing and SSL/TLS.
+- **GitOps:** The future of declarative deployments.
+
+</div>
+</div>
+
+<div class="mt-8 bg-slate-800 p-4 rounded border border-slate-700 text-center">
+<p class="text-lg font-bold">"Automation is not about doing things fast, it's about doing things reliably."</p>
+</div>

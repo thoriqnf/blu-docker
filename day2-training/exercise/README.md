@@ -44,8 +44,14 @@ Internal network works, but external customers still get a generic 404 or 502 er
    - Is it pointing to the right Service name?
    - Is it pointing to the correct Service port? (Check `service.yaml` for the port number!)
 4. Fix `ingress.yaml` and apply.
-5. In a new terminal run: `minikube tunnel`
-6. Test with: `curl -H "Host: store.local" http://127.0.0.1`
+5. In a new terminal run: `minikube tunnel` (or add to `/etc/hosts`).
+6. Test with: `curl -H "Host: store.local" http://localhost`
+
+### Task 4: The Recovery (Bonus - GitOps)
+Now that you fixed the staging cluster manually, let's automate it for production.
+1. Install ArgoCD (follow instructions from Demo 4).
+2. Create an ArgoCD Application that points to your fixed code.
+3. Delete the deployment manually via `kubectl` and watch it "Self-Heal"!
 
 ---
 
@@ -54,7 +60,7 @@ Internal network works, but external customers still get a generic 404 or 502 er
 - [ ] `kubectl get pods` shows 2 pods in `Running` state.
 - [ ] `kubectl describe svc my-store-service` shows actual Pod IPs under `Endpoints`.
 - [ ] The Ingress correctly routes `store.local` to the `my-store-service` on port 80.
-- [ ] `curl -H "Host: store.local" http://127.0.0.1` returns a success response.
+- [ ] **Bonus**: ArgoCD is installed and managing the application status.
 
 ## 💡 Hints
 - Pods are crashing because they don't have the right environment variable to connect to their (mock) database. It expects `DB_PASSWORD` but the YAML has a typo!

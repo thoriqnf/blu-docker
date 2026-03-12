@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Day 2 - Demo 1</title>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            animation: fadeIn 1s ease-out;
+        }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #334155;
+            color: #38bdf8;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-box {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #020617;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #10b981;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">Kubernetes Basics</div>
+        <h1>Deployment v1</h1>
+        <p>Your first application is live on Minikube!</p>
+        <div class="status-box">
+            $ kubectl get pods<br>
+            NAME: demo-app-v1-xxxxx<br>
+            STATUS: Running<br>
+            READY: 1/1
+        </div>
+    </div>
+</body>
+</html>
