@@ -34,19 +34,45 @@ kubectl get ingress demo-ingress
 ### 4. Local DNS Configuration
 Since `api.devops.local` isn't a real public domain, you need to tell your computer to resolve it to Minikube.
 
-**Option A: The Automated Way (MacOS)**
-In a new terminal, run:
-```bash
-minikube tunnel
-```
-*This will map the Ingress controller to 127.0.0.1.*
+> [!IMPORTANT]
+> **MacOS / Docker Desktop Users:** Direct Minikube IPs (e.g., `192.168.49.2`) are often unreachable from the host browser. You **must** use `minikube tunnel` and map the domain to `127.0.0.1`.
 
-**Option B: The Manual Way (/etc/hosts)**
-Get your Minikube IP: `minikube ip` (e.g., `192.168.49.2`).
-Add this line to your `/etc/hosts` file:
-```text
-192.168.49.2 api.devops.local
-```
+---
+
+**Option A: The Automated Way (Recommended for MacOS)**
+1. In a new terminal, run:
+   ```bash
+   minikube tunnel
+   ```
+2. While the tunnel is running, add this line to your `/etc/hosts` file:
+   ```text
+   127.0.0.1 api.devops.local
+   ```
+*The tunnel bridges the Ingress controller to your local machine.*
+
+---
+
+**Option B: The Manual Way (Linux/Direct VM)**
+1. Get your Minikube IP: `minikube ip` (e.g., `192.168.49.2`).
+2. Add this line to your `/etc/hosts` file:
+   ```text
+   192.168.49.2 api.devops.local
+   ```
+
+---
+
+**Option C: The Windows Way**
+1. In a **new Administrator terminal** (PowerShell or CMD), run:
+   ```powershell
+   minikube tunnel
+   ```
+2. Keep the tunnel running. Open `Notepad` as **Administrator** and edit:
+   `C:\Windows\System32\drivers\etc\hosts`
+3. Add this line at the bottom:
+   ```text
+   127.0.0.1 api.devops.local
+   ```
+*Windows requires elevated privileges to edit the hosts file and run the tunnel networking.*
 
 ### 5. Access the Domain
 Open your browser and visit:

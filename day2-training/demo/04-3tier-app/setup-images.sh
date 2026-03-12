@@ -1,4 +1,4 @@
-#!/bin/bash
+w#!/bin/bash
 
 # Exit on any error
 set -e
@@ -13,19 +13,12 @@ if ! minikube status > /dev/null 2>&1; then
     minikube start --driver=docker
 fi
 
-echo "[2/4] Building Backend Image locally..."
-cd app/backend
-docker build -t demo-backend:v1 .
-cd ../..
+echo "[2/3] Setting Docker environment to Minikube..."
+eval $(minikube docker-env)
 
-echo "[3/4] Building Frontend Image locally..."
-cd app/frontend
-docker build -t demo-frontend:v1 .
-cd ../..
-
-echo "[4/4] Loading Images into Minikube (this may take a minute)..."
-minikube image load demo-backend:v1
-minikube image load demo-frontend:v1
+echo "[3/3] Building Images inside Minikube..."
+docker build -t demo-backend:v1 ./app/backend
+docker build -t demo-frontend:v1 ./app/frontend
 
 echo "======================================"
 echo "✅ Setup Complete!"

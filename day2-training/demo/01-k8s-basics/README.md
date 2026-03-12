@@ -61,6 +61,13 @@ If it doesn't open automatically, look for the **127.0.0.1** URL in the terminal
 ## Clean Up
 To remove the resources created in this demo:
 ```bash
+kubectl delete -f configmap.yaml
 kubectl delete -f deployment.yaml
 kubectl delete -f service.yaml
 ```
+
+minikube image load demo-app:v12
+kubectl apply -f deployment.yaml
+kubectl rollout restart deployment/demo-app
+kubectl get pods
+minikube service demo-app-service

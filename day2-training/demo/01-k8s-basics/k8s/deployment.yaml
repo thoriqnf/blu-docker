@@ -16,13 +16,10 @@ spec:
     spec:
       containers:
       - name: web
-        image: nginx:alpine
+        image: demo-app:v12
+        imagePullPolicy: Never
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: html-volume
-          mountPath: /usr/share/nginx/html/index.html
-          subPath: index.html
         resources:
           limits:
             cpu: "200m"
@@ -30,7 +27,5 @@ spec:
           requests:
             cpu: "100m"
             memory: "128Mi"
-      volumes:
-      - name: html-volume
-        configMap:
-          name: demo-app-html
+
+# kubectl port-forward svc/demo-app 8080:80
