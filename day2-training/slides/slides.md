@@ -38,11 +38,11 @@ What we will cover in this session:
   <Admonition color="slate" title="Today's Topics" icon="mdi-format-list-bulleted" custom="text-lg">
     <ul class="text-left space-y-2 list-none p-2 text-xs text-slate-200 font-medium">
       <li><mdi-kubernetes class="text-slate-400 inline mr-2"/> <b>Section 1:</b> Kubernetes Basics &amp; Project Setup</li>
-      <li><mdi-google-analytics class="text-slate-400 inline mr-2"/> <b>Section 2:</b> Advanced Deployment Strategies <span class="text-slate-400">← Centerpiece</span></li>
-      <li><mdi-lan class="text-slate-400 inline mr-2"/> <b>Section 3:</b> Networking, Architecture &amp; Advanced Workloads</li>
-      <li><mdi-bug-check class="text-slate-400 inline mr-2"/> <b>Section 4:</b> Debugging Workflow &amp; Practice</li>
-      <li><mdi-sync class="text-slate-400 inline mr-2"/> <b>Section 5:</b> CI/CD, Helm &amp; GitOps</li>
-      <li><mdi-trophy-variant class="text-slate-400 inline mr-2"/> <b>Section 6:</b> Final Debugging Challenge</li>
+      <li><mdi-google-analytics class="text-slate-400 inline mr-2"/> <b>Section 2:</b> Advanced Deployment Strategies</li>
+      <li><mdi-lan class="text-slate-400 inline mr-2"/> <b>Section 3:</b> Networking, Architecture &amp; Workloads</li>
+      <li><mdi-school class="text-slate-400 inline mr-2"/> <b>Section 4:</b> Deep Dive — Advanced Concepts</li>
+      <li><mdi-bug-check class="text-slate-400 inline mr-2"/> <b>Section 5:</b> Debugging Workflow &amp; Practice</li>
+      <li><mdi-sync class="text-slate-400 inline mr-2"/> <b>Section 6:</b> CI/CD, Helm &amp; GitOps</li>
     </ul>
     <p class="text-[10px] text-slate-400 italic mt-3 text-center">Central theme: <b class="text-slate-300">Every deployment decision is a risk management decision.</b></p>
   </Admonition>
@@ -73,17 +73,19 @@ The Conductor of the Container Orchestra
   </Admonition>
 </div>
 
----
-layout: section
----
+<div class="mt-8 bg-slate-800 p-4 border border-slate-700 rounded text-center">
+  <p class="text-xs font-bold text-slate-300 mb-2">Why K8s Exists (The Chaos Solver)</p>
+  <div class="grid grid-cols-4 gap-4 text-[9px] text-slate-200">
+    <div class="p-2 border border-slate-700 rounded"><b>Scheduling:</b> Where do containers run?</div>
+    <div class="p-2 border border-slate-700 rounded"><b>Self-healing:</b> What if one crashes?</div>
+    <div class="p-2 border border-slate-700 rounded"><b>Networking:</b> How do they talk?</div>
+    <div class="p-2 border border-slate-700 rounded"><b>Scaling:</b> How do you scale up/down?</div>
+  </div>
+</div>
 
-# ☕ Intermezzo: The Orchestration Wars
+# ☕ The Orchestration Wars (2014-2017)
 
 Why did Kubernetes win?
-
----
-
-# The Orchestration Wars (2014-2017)
 
 - **Docker Swarm:** Built by Docker. Very easy ("Just like Compose") but struggled with complex enterprise primitives.
 - **Apache Mesos:** "The Datacenter OS". Powerhouse for Twitter/Airbnb, but proved too complex for average teams to operate.
@@ -130,14 +132,6 @@ spec:                   # The "Desired State". What do we want?
  
 
 ---
-layout: section
----
-
-# Project Setup: From Zero to K8s
-
-How to launch your code
-
----
 
 # Project Setup Workflow
 
@@ -178,13 +172,6 @@ Minikube is a tool that lets you run Kubernetes locally. It runs a single-node K
     </div>
   </Admonition>
 </div>
-
----
-layout: section
----
-
-# Demo 1: Minikube Setup
-Practicing local Kubernetes installation
 
 ---
 
@@ -361,13 +348,6 @@ How port mapping translates from what we learned in Day 1:
 </div>
 
 ---
-layout: section
----
-
-# Demo 2: Minikube Networking
-Connecting to services locally
-
----
 
 # Demo 2: Minikube Networking
 
@@ -401,6 +381,150 @@ If `LoadBalancer` exposes apps to the internet, why isn't it enough?
 <div class="mt-6 text-center text-xl font-bold bg-slate-800 p-2 rounded text-slate-200">
   Solution: We need a Layer 7 router. We need INGRESS.
 </div>
+
+---
+
+# Core Objects: The Pod
+
+The smallest deployable unit in Kubernetes.
+
+<div class="grid grid-cols-2 gap-8 mt-4">
+<div>
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+    - name: app
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+```
+
+</div>
+<div class="space-y-4">
+
+<Admonition color="slate" title="What it is" icon="mdi-podium">
+<p class="text-[10px]">Wraps one or more containers that share network and storage. Containers in a Pod talk to each other via <code>localhost</code>.</p>
+</Admonition>
+
+<Admonition color="rose" title="🚨 Production Rule" icon="mdi-alert-octagon">
+<p class="text-[10px] font-bold">Never create bare Pods in production. If they die, they aren't restarted automatically. <b>Always use a Deployment.</b></p>
+</Admonition>
+
+</div>
+</div>
+
+---
+
+# Core Objects: The Deployment
+
+The "Boss" that manages your Pods.
+
+<div class="grid grid-cols-2 gap-8 mt-4">
+<div>
+
+```yaml {all|5|8-11|all}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.25
+```
+
+</div>
+<div class="space-y-4">
+
+<Admonition color="slate" title="Key Features" icon="mdi-robot">
+<ul class="text-[9px] space-y-1">
+<li><b>Self-Healing:</b> Restarts pods if they crash.</li>
+<li><b>Scaling:</b> Scale from 1 to 100 with one command.</li>
+<li><b>Rollouts:</b> Zero-downtime updates and easy rollbacks.</li>
+</ul>
+</Admonition>
+
+<p class="text-[10px] text-slate-400 italic mt-4 text-center">"Declarative management: You define the desired state, K8s makes it happen."</p>
+
+</div>
+</div>
+
+---
+
+# Core Objects: The Service
+
+A stable network endpoint. Pods are ephemeral; Services are permanent.
+
+<div class="mt-8">
+
+| Type | Use Case |
+|------|----------|
+| **ClusterIP** | **Internal Only.** Stable IP for pods to talk to each other. |
+| **NodePort** | **Testing.** Exposes the service on a static port on every Node's IP. |
+| **LoadBalancer** | **Production.** Creates a Cloud Load Balancer (AWS/GCP/Azure). |
+| **ExternalName** | **Legacy.** DNS alias to a service outside the cluster. |
+
+</div>
+
+<div class="mt-8 bg-slate-900 p-4 border border-slate-700 rounded text-center">
+  <code class="text-xs">kubectl expose deployment my-app --type=LoadBalancer --port=80</code>
+</div>
+
+---
+
+# ConfigMap & Secret
+
+Decoupling configuration from your application code.
+
+<div class="grid grid-cols-2 gap-8 mt-4">
+<div>
+
+### ConfigMap (Plain Text)
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DB_HOST: "postgres.local"
+  DEBUG: "true"
+```
+
+</div>
+<div>
+
+### Secret (Base64)
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  # 'supersecret' in base64
+  PASSWORD: c3VwZXJzZWNyZXQ=
+```
+
+</div>
+</div>
+
+<p class="text-[10px] text-center mt-6 text-slate-400">
+  <b>Reminder:</b> K8s Secrets are NOT encrypted by default. Use SealedSecrets or External Secrets in production.
+</p>
 
 ---
 layout: section
@@ -456,19 +580,6 @@ Every deployment decision is a risk management decision. K8s default strategy fe
   </p>
 </div>
 
-<div class="mt-4 space-y-4">
-  <Admonition color="slate" title="The Bi-directionality Requirement" icon="mdi-swap-horizontal-bold">
-    <p class="text-[11px] mb-2 leading-relaxed">If v1 and v2 run at the same time, your app must be backward and forward compatible with itself during the rollout window.</p>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-slate-900/50 p-2 rounded">
-        <p class="text-[9px] font-bold text-slate-400 uppercase">Database Schema</p>
-        <p class="text-[9px] text-slate-300">If v2 renames <code>user_name</code> to <code>full_name</code>, the v1 pods still running will crash immediately. <b>Rename is a breaking change.</b></p>
-      </div>
-      <div class="bg-slate-900/50 p-2 rounded">
-        <p class="text-[9px] font-bold text-slate-400 uppercase">Cache Key Collision</p>
-        <p class="text-[9px] text-slate-300">If v2 changes the Redis key format for <code>session:{id}</code>, v1 and v2 will constantly overwrite or invalidate each other's data.</p>
-      </div>
-    </div>
   </Admonition>
 </div>
 
@@ -585,14 +696,8 @@ Mirror traffic to v2, but discard the response. Users only see v1's result.
   </div>
 </div>
 
-<div class="grid grid-cols-2 gap-2 mt-3">
-  <Admonition color="slate" title="The Anti-Pattern" icon="mdi-close-circle" customTitle="text-xs">
-    <p class="text-[9px] text-slate-300"><code>ALTER TABLE RENAME COLUMN first_name TO full_name</code> in the same deploy as v2 code = immediate crash for every v1 pod still running. Never do this.</p>
-  </Admonition>
-  <Admonition color="blue" title="The Timeline Rule" icon="mdi-calendar-clock" customTitle="text-xs">
-    <p class="text-[9px] text-slate-300">Deploy A → verify stability (hours or days) → Deploy B → wait for backfill → Deploy C. Never rush to Contract.</p>
-  </Admonition>
 </div>
+
 ---
 
 # Progressive Delivery
@@ -636,6 +741,20 @@ layout: section
 # Deep Dive: Kubernetes Architecture
 
 Let's look closely at what actually powers the cluster.
+
+---
+
+# Cluster Architecture Overview
+
+A high-level view of how the Control Plane and Worker Nodes interact.
+
+<div class="mt-4 flex justify-center">
+  <img src="/k8s_cluster_architecture.png" class="h-[400px] rounded shadow border border-slate-700" alt="Kubernetes Cluster Architecture" />
+</div>
+
+<div class="mt-4 text-[10px] text-center text-slate-400 italic">
+  Note the central role of the <b>API Server</b> and the <b>Kubelet</b> agent on every node.
+</div>
 
 ---
 
@@ -719,6 +838,31 @@ The networking muscle on every physical server.
 </div>
 
 ---
+
+# The Worker Node: kubelet
+
+The "Node Brain" that executes the Control Plane's orders.
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+<div>
+
+### What it does
+- Receives a **PodSpec** (YAML) and ensures the containers described are running and healthy.
+- It is the agent that talks directly to the **Container Runtime** (Docker/containerd).
+- Reports node and pod status back to the API Server.
+
+</div>
+<div>
+
+### Key Mechanism: The Sync Loop
+- Kubelet doesn't just start containers; it constantly **watches** them.
+- If a container crashes, the Kubelet sync loop sees the discrepancy and restarts it locally.
+- *Fun Fact:* It can run "Static Pods" from a local file without an API server!
+
+</div>
+</div>
+
+---
 layout: section
 ---
 
@@ -772,8 +916,6 @@ What exactly is happening when a Pod isn't `Running`?
     <p class="text-[10px] text-slate-200">The Pod is being gracefully shut down. It allows <code>preStop</code> hooks and SIGTERM signals to finish before the container is killed.</p>
   </Admonition>
 </div>
-
----
 
 ---
 
@@ -832,7 +974,11 @@ Pods aren't just for running your simple web server.
 
 # Guardrails: Limits, Requests & Quotas
 
-Assume every developer will accidentally write a memory leak.
+<div class="text-center my-6">
+  <p class="text-xl font-bold bg-slate-800 p-4 border-y border-slate-700 italic">
+    "Assume every developer will accidentally write a memory leak."
+  </p>
+</div>
 
 <div class="mt-6 space-y-3">
   <Admonition color="slate" title="1. Requests & Limits" icon="mdi-scale-balance" customTitle="text-sm">
@@ -850,7 +996,7 @@ Assume every developer will accidentally write a memory leak.
 layout: section
 ---
 
-# Section 3: Networking, Architecture & Advanced Workloads
+# Section 3: Networking, Architecture & Workloads
 
 Supporting context for our deployment strategies
 
@@ -866,7 +1012,6 @@ While a `LoadBalancer` service is great, it’s expensive and inefficient to spi
       An API object that manages external access to services, typically via HTTP and HTTPS. It sits "in front" of your services and acts as a <b>smart router.</b>
     </p>
   </Admonition>
-</div>
 
 <div class="grid grid-cols-2 gap-4 mt-6">
   <ul class="text-[10px] space-y-2 text-slate-200">
@@ -920,13 +1065,6 @@ While a `LoadBalancer` service is great, it’s expensive and inefficient to spi
 </div>
 
 ---
-layout: section
----
-
-# Demo 3: Ingress Routing
-Exposing domains locally
-
----
 
 # Demo 3: Ingress Routing
 
@@ -976,18 +1114,30 @@ spec:
 
 In 2024, everything must be HTTPS. Kubernetes makes this entirely automated.
 
-<div class="mt-6 flex flex-col space-y-4">
-  
-1. You install **Cert-Manager** (a popular open-source K8s add-on) into your cluster.
-2. Cert-Manager watches your Ingress YAML files for `tls` blocks.
-3. When it sees a new domain, Cert-Manager automatically speaks to **Let's Encrypt**.
-4. It performs the ACME DNS or HTTP-01 challenge to prove you own the domain.
-5. In 10 seconds, it downloads a free SSL certificate.
-6. It saves that certificate as a K8s `Secret`.
-7. Your Ingress Controller (NGINX) immediately detects the Secret and enables green-padlock HTTPS traffic.
-8. Cert-Manager automatically renews the certificate 30 days before it expires.
+<div class="grid grid-cols-2 gap-x-8 gap-y-4 mt-4 text-xs">
 
-*Zero human intervention required.*
+<div>
+
+1. **Install:** Deploy **Cert-Manager** add-on into your cluster.
+2. **Configure:** It watches Ingress YAML files for `tls` blocks.
+3. **Connect:** When it sees a domain, it speaks to **Let's Encrypt**.
+4. **Prove:** It performs ACME DNS or HTTP-01 ownership challenges.
+
+</div>
+
+<div>
+
+5. **Issue:** In 10 seconds, it downloads a free SSL certificate.
+6. **Store:** It saves that certificate as a K8s `Secret`.
+7. **Deploy:** NGINX detects the Secret and enables HTTPS traffic.
+8. **Renewal:** It automatically renews 30 days before expiration.
+
+</div>
+
+</div>
+
+<div class="mt-8 text-center text-sm italic text-slate-400">
+  "Zero human intervention required."
 </div>
 
 ---
@@ -1016,7 +1166,6 @@ Ingress is great, but it has flaws. The K8s project is officially replacing `Ing
   - *Developers* deploy `HTTPRoute` bindings.
 - Fully supports modern routing: gRPC, headers, weighted traffic splitting (A/B testing out of the box).
 
-</div>
 </div>
 
 ---
@@ -1062,7 +1211,6 @@ Do not hardcode configuration into your Docker Images!
 - Injected via **Environment Variables** (best for simple keys).
 - Injected via **Mounted Volume Files** (best for complex `nginx.conf`).
 
-### Secrets
 ### Secrets
 
 <Admonition color="slate" title="🚨 CRITICAL: Secrets Are NOT Encrypted" icon="mdi-shield-alert" customTitle="text-sm font-bold">
@@ -1114,7 +1262,218 @@ If everything in K8s is declarative YAML stored in Git, **where do you put the D
 
 ---
 
-# Section 4: Debugging Kubernetes
+---
+layout: section
+---
+
+# Section 4: Deep Dive — Advanced Concepts
+
+Enabling Production-Grade Reliability
+
+---
+
+# Pod Lifecycle & Phases
+
+Understanding exactly what happens when a Pod is created or terminated is critical for debugging.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### The Phases
+| Phase | Meaning |
+|-------|---------|
+| **Pending** | Scheduled but waiting (pulling image, resource wait) |
+| **Running** | At least one container is running |
+| **Succeeded** | All containers exited with code 0 |
+| **Failed** | At least one container exited non-zero |
+
+</div>
+<div>
+
+### Container States
+- **Waiting:** Pulling image or waiting on a dependency.
+- **Running:** Executing.
+- **Terminated:** Finished or crashed.
+
+<Admonition color="blue" title="Init Containers" icon="mdi-clock-start">
+<p class="text-[9px]">Run strictly <b>before</b> main containers. Perfect for DB migrations or waiting for dependencies.</p>
+</Admonition>
+
+</div>
+</div>
+
+---
+
+# Probes: The Reliability Engine
+
+Get these wrong, and you'll have bad deploys or phantom traffic.
+
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <Admonition color="slate" title="1. Liveness" icon="mdi-heart-pulse">
+    <p class="text-[9px]">Is the app alive? If it fails, K8s <b>restarts</b> the container. Used for fixing deadlocks.</p>
+  </Admonition>
+  <Admonition color="slate" title="2. Readiness" icon="mdi-traffic-light">
+    <p class="text-[9px]">Is it ready for traffic? If it fails, the Pod is <b>removed</b> from the Service endpoints.</p>
+  </Admonition>
+  <Admonition color="slate" title="3. Startup" icon="mdi-power-cycle">
+    <p class="text-[9px]">Is the app done starting? Disables other probes until success. Great for slow Java boots.</p>
+  </Admonition>
+</div>
+
+<div class="mt-6 bg-slate-800 p-3 rounded border border-slate-700">
+<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Common Pitfall</p>
+<p class="text-[9px] text-slate-300">Using the same endpoint for Liveness and Readiness. If your DB is down, Readiness should fail (stop traffic), but Liveness should pass (don't restart!).</p>
+</div>
+
+---
+
+# Resource Management (Advanced)
+
+Without limits, one bad actor pod can starve an entire physical node.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### Requests (The Floor)
+- Minimum resources guaranteed.
+- **Used for SCHEDULING decisions.**
+- If you request 2GB, the scheduler ensures the node has 2GB free.
+
+</div>
+<div>
+
+### Limits (The Ceiling)
+- Absolute maximum allowed.
+- **Memory:** If exceeded, Pod is **OOMKilled**.
+- **CPU:** If exceeded, Pod is **Throttled** (slows down).
+
+</div>
+</div>
+
+<div class="mt-6">
+  <Admonition color="slate" title="QoS Classes" icon="mdi-medal">
+    <p class="text-[10px] text-slate-200">
+      <b>Guaranteed:</b> requests == limits. Highest priority.<br/>
+      <b>Burstable:</b> requests < limits. Middle priority.<br/>
+      <b>BestEffort:</b> No requests or limits. First to be killed during node pressure.
+    </p>
+  </Admonition>
+</div>
+
+---
+
+# Scheduling, Affinity & Taints
+
+Precision control over where your workloads land.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### Affinity / Anti-Affinity
+- **Node Affinity:** "Place these pods on nodes with SSDs."
+- **Pod Anti-Affinity:** "Don't put two copies of the API on the same physical node" (High Availability).
+
+</div>
+<div>
+
+### Taints & Tolerations
+- **Taints:** Repel pods from nodes (e.g., reserve a node for GPUs).
+- **Tolerations:** Allow specific pods to "tolerate" the taint and land there anyway.
+
+</div>
+</div>
+
+<div class="mt-8 text-center text-xs italic text-slate-400">
+  "NodeSelector is a toddler's toy; Affinity is a precision instrument."
+</div>
+
+---
+
+# RBAC: Who can do what?
+
+Role-Based Access Control is the security backbone.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### The Actors
+- **Users:** Internal people or external systems.
+- **ServiceAccounts:** Identity for **Pods** (e.g., ArgoCD).
+
+</div>
+<div>
+
+### The Permissions
+- **Role / ClusterRole:** WHAT can be done (get, list, watch, delete).
+- **Binding:** WHO gets assigned to which Role.
+
+</div>
+</div>
+
+<Admonition color="slate" title="Principle of Least Privilege" icon="mdi-shield-check">
+<p class="text-[10px]">Never use the <code>cluster-admin</code> role for your applications. Create specific ServiceAccounts with only the <code>get</code> and <code>list</code> verbs they need.</p>
+</Admonition>
+
+---
+
+# Networking Deep Dive
+
+How Services and Pods communicate at scale.
+
+<div class="grid grid-cols-2 gap-8 mt-6">
+<div>
+
+### DNS in Kubernetes
+Every Service gets a DNS entry automatically:
+`<service>.<ns>.svc.cluster.local`
+
+- **Shorthand:** Within the same namespace, just use `my-service:8080`.
+- **CoreDNS:** The internal component that handles these lookups.
+
+</div>
+<div>
+
+### Network Policies
+🔒 **By default, all Pods can talk to all Pods.**
+- Use `NetworkPolicy` to restrict traffic.
+- Example: "Only the Frontend Pod can talk to the API Pod."
+- **mTLS:** Provided by Service Meshes like Istio or Linkerd.
+
+</div>
+</div>
+
+---
+
+# Storage Deep Dive
+
+Persistence is hard. K8s makes it reproducible.
+
+<div class="grid grid-cols-2 gap-8 mt-4 text-xs">
+<div>
+
+### PV & PVC
+- **PersistentVolume (PV):** The actual hard drive (provisioned by Admin).
+- **Claim (PVC):** The developer's request for storage.
+- **StorageClass:** Defines *how* storage is created (SSD, HDD, Cloud Disk).
+
+</div>
+<div>
+
+### Access Modes
+- **RWO:** One node reads/writes (Standard).
+- **ROX:** Many nodes read (Shared cache).
+- **RWX:** Many nodes read/write (NFS, EFS).
+
+</div>
+</div>
+
+<Admonition color="slate" title="StatefulSets & Storage" icon="mdi-database">
+<p class="text-[9px]">StatefulSet <code>volumeClaimTemplates</code> ensure that <code>db-0</code> always gets the exact same disk back if it restarts, even on a different physical server.</p>
+</Admonition>
+
+---
+
+# Section 5: Debugging Kubernetes
 
 The systematic troubleshooting workflow
 
@@ -1142,14 +1501,27 @@ When an app is down, follow the traffic from the inside out:
   </Admonition>
 </div>
 
-<div class="mt-4 bg-slate-900 p-3 rounded border border-slate-700">
-  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">The Golden Rule of Debugging</p>
-  <p class="text-[10px] text-slate-300 italic italic">"Is it a Connection Refused (App Level) or a Timeout (Network Level)?"</p>
-  <ul class="text-[9px] mt-2 space-y-1 text-slate-400">
-    <li>• <b>Label Mismatch:</b> Service Endpoints will be empty.</li>
-    <li>• <b>Port Mismatch:</b> TargetPort doesn't match the app's listening port.</li>
-    <li>• <b>Namespacing:</b> Trying to reach a Service in <code>default</code> from a Pod in <code>prod</code> without the FQDN.</li>
-  </ul>
+---
+
+# The Golden Rule of Debugging
+
+<div class="mt-8 bg-slate-900 p-8 rounded border border-slate-700 text-center">
+  <p class="text-2xl font-bold text-slate-300 italic italic">"Is it a Connection Refused (App Level) or a Timeout (Network Level)?"</p>
+  
+  <div class="grid grid-cols-3 gap-4 mt-12 text-left">
+    <div class="space-y-2">
+      <p class="text-blue-400 font-bold uppercase text-xs">Label Mismatch</p>
+      <p class="text-[10px] text-slate-400">Service Endpoints will be empty. Traffic has nowhere to go.</p>
+    </div>
+    <div class="space-y-2">
+      <p class="text-orange-400 font-bold uppercase text-xs">Port Mismatch</p>
+      <p class="text-[10px] text-slate-400">TargetPort doesn't match the app's listening port.</p>
+    </div>
+    <div class="space-y-2">
+      <p class="text-slate-300 font-bold uppercase text-xs">Namespacing</p>
+      <p class="text-[10px] text-slate-400">Trying to reach a Service in another namespace without the FQDN.</p>
+    </div>
+  </div>
 </div>
 
 ---
@@ -1288,13 +1660,6 @@ Specific tools for your local development environment:
 </div>
 
 ---
-layout: section
----
-
-# Section 5: Practice - Deploy & Debug
-Live Demonstration on Minikube / K3s
-
----
 
 # Demo Environment: Minikube
 
@@ -1321,8 +1686,10 @@ Now that our local cluster is running...
 
 </div>
 
----
-layout: section
+# Section 6: CI/CD, Helm & GitOps
+
+From Manual Manifests to Automated Pipelines
+
 ---
 
 # Deep Dive: Helm - The K8s Package Manager
@@ -1421,13 +1788,6 @@ Navigate to the `exercise/` folder and open the `README.md`.
 You are the on-call DevOps engineer. Production is down. Good luck!
 
 ---
-layout: section
----
-
-# Section 5: Wrap-up & Summary
-The Journey from Docker to GitOps
-
----
 
 # The Big Picture: Day 1 & Day 2
 
@@ -1454,4 +1814,23 @@ The Journey from Docker to GitOps
 
 <div class="mt-8 bg-slate-800 p-4 rounded border border-slate-700 text-center">
 <p class="text-lg font-bold">"Automation is not about doing things fast, it's about doing things reliably."</p>
+</div>
+---
+
+# Quick Reference: Object Cheat Sheet
+
+| Object | Purpose | API Group |
+|--------|---------|-----------|
+| **Pod** | Basic unit of deployment | `core` |
+| **Deployment** | Stateless workloads (Replication/Updates) | `apps` |
+| **StatefulSet** | Stateful workloads (Stable IDs/Storage) | `apps` |
+| **Service** | Stable network endpoint (L4) | `core` |
+| **Ingress** | HTTP/HTTPS Routing (L7) | `networking.k8s.io` |
+| **ConfigMap / Secret** | Configuration & Sensitive Data | `core` |
+| **PV / PVC** | Persistent Storage & Claims | `core` |
+| **HPA** | Horizontal Pod Autoscaling | `autoscaling` |
+| **RBAC** | Roles & Permissions | `rbac.authorization.k8s.io` |
+
+<div class="mt-4 text-center text-xs text-slate-400">
+  For more details, check the <code>K8S_CHEATSHEET.md</code> in the project root.
 </div>
