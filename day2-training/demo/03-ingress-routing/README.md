@@ -74,6 +74,20 @@ Since `api.devops.local` isn't a real public domain, you need to tell your compu
    ```
 *Windows requires elevated privileges to edit the hosts file and run the tunnel networking.*
 
+---
+
+**Option D: The Zero-Privileges Way (No Tunnel / No Hosts)**
+*Recommended if you are on a restricted company laptop.*
+
+1. In a new terminal, run:
+   ```bash
+   kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80
+   ```
+2. Keep the command running. Open your browser and visit:
+   [http://api.127.0.0.1.nip.io:8080](http://api.127.0.0.1.nip.io:8080)
+
+*This method bypasses system DNS and networking restrictions completely using Local Port Forwarding and Wildcard DNS.*
+
 ### 5. Access the Domain
 Open your browser and visit:
 [http://api.devops.local](http://api.devops.local)
