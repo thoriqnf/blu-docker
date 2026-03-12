@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-ingress
+  annotations:
+    # Requires: minikube addons enable ingress
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: 3tier.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-frontend
+            port:
+              number: 80

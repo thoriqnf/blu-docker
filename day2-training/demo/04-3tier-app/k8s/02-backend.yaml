@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-backend
+  labels:
+    app: demo-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-backend
+  template:
+    metadata:
+      labels:
+        app: demo-backend
+    spec:
+      containers:
+      - name: demo-backend
+        # Note the specific tag, we'll build this locally in minikube
+        image: demo-backend:v1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: "database" # Matches database service name
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: demo-backend
+  ports:
+  - port: 3000
+    targetPort: 3000

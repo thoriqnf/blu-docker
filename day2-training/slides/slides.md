@@ -49,21 +49,13 @@ What we will cover in this session:
 </div>
 
 ---
-layout: section
----
-
-# What is Kubernetes?
-
-The Conductor of the Container Orchestra
-
----
 
 # What is Kubernetes?
 
 <div class="grid grid-cols-2 gap-8 mt-8">
   <Admonition color="slate" title="1. The Problem" icon="mdi-alert-box">
     <p class="text-[10px] text-slate-200">
-      Running 1 Docker container is easy. Running 1,000 Docker containers across 50 servers, managing their networks, secrets, storage, and auto-restarting them when they crash is <b>impossible manually.</b>
+      Running 1 Docker container is easy. Running 1,000 Docker containers across 50 servers, managing their networks, secrets, storage, and auto-restarting them when they crash is <b>impossible without automation.</b>
     </p>
   </Admonition>
   <Admonition color="slate" title="2. The Solution" icon="mdi-check-decagram">
@@ -82,6 +74,7 @@ The Conductor of the Container Orchestra
     <div class="p-2 border border-slate-700 rounded"><b>Scaling:</b> How do you scale up/down?</div>
   </div>
 </div>
+---
 
 # ☕ The Orchestration Wars (2014-2017)
 
@@ -384,9 +377,7 @@ If `LoadBalancer` exposes apps to the internet, why isn't it enough?
 
 ---
 
-# Core Objects: The Pod
-
-The smallest deployable unit in Kubernetes.
+# Never create bare Pods in production
 
 <div class="grid grid-cols-2 gap-8 mt-4">
 <div>
@@ -411,9 +402,9 @@ spec:
 <p class="text-[10px]">Wraps one or more containers that share network and storage. Containers in a Pod talk to each other via <code>localhost</code>.</p>
 </Admonition>
 
-<Admonition color="rose" title="🚨 Production Rule" icon="mdi-alert-octagon">
-<p class="text-[10px] font-bold">Never create bare Pods in production. If they die, they aren't restarted automatically. <b>Always use a Deployment.</b></p>
-</Admonition>
+<p class="text-[11px] mt-4 border-l-4 border-rose-500 pl-3 text-slate-200 font-bold">
+  If bare Pods die, they aren't restarted automatically.<br/><span class="text-rose-400">Always use a Deployment.</span>
+</p>
 
 </div>
 </div>
@@ -536,11 +527,10 @@ Every deployment decision is a risk management decision.
 
 ---
 
-# Why Strategy Matters
+# Choosing the wrong strategy doesn't just cause downtime
+### It can corrupt state, split user sessions, or make rollback impossible without data loss.
 
-In Kubernetes, a "deployment" isn't just about getting new code running — it's about managing **risk across four dimensions**: availability, correctness, performance, and rollback. 
-
-Choosing the wrong strategy doesn't just cause downtime; it can **corrupt state**, split user sessions, or make rollback impossible without data loss.
+In Kubernetes, a "deployment" isn't just about getting new code running — it's about managing **risk across four dimensions**: availability, correctness, performance, and rollback.
 
 <div v-click class="mt-8">
   <Admonition color="slate" title="The Core Tension" icon="mdi-scale-balance">
@@ -578,9 +568,6 @@ Every deployment decision is a risk management decision. K8s default strategy fe
     <b>Scenario:</b> A team renamed the <code>full_name</code> database column to <code>user_display_name</code> and shipped the code in a single rolling update.<br/>
     <b>Result:</b> For 5 minutes, 50% of traffic hit v1 pods (expecting the old name) and crashed, while the other 50% hit v2 and worked. The partial failure made it nightmare to debug because "it worked for some users."
   </p>
-</div>
-
-  </Admonition>
 </div>
 
 | Parameter | Role | Benefit |
@@ -663,16 +650,6 @@ Mirror traffic to v2, but discard the response. Users only see v1's result.
 
 # The State Problem: Expand/Contract
 
-<div class="grid grid-cols-2 gap-4 mb-4">
-  <div class="bg-slate-800 p-2 rounded border border-slate-600">
-    <p class="text-[9px] font-bold text-slate-400 uppercase">❌ The "Instant Crash" (Common Mistake)</p>
-    <p class="text-[8px] text-slate-300"><code>ALTER TABLE users RENAME COLUMN name TO full_name;</code><br/>One deploy ships this DB change + v2 code. <b>Result:</b> Existing v1 pods crash immediately as "name" disappears.</p>
-  </div>
-  <div class="bg-slate-800 p-2 rounded border border-slate-600">
-    <p class="text-[9px] font-bold text-slate-400 uppercase">✅ The "Expand & Contract" (The Right Way)</p>
-    <p class="text-[8px] text-slate-300">Phase 1: Add new column. Phase 2: Backfill & Read new. Phase 3: Drop old. <b>Result:</b> Zero downtime, safe rollback always possible.</p>
-  </div>
-</div>
 
 <Admonition color="slate" title="⚠️ Production Gotcha" icon="mdi-alert-circle" customTitle="text-sm font-bold">
   <p class="text-[10px] text-slate-200">This is <b>always 3 separate deployments</b>. Most production outages during schema migrations happen because teams rush all 3 phases into one deploy — where v1 and v2 coexist, a single-step rename means <b>instant downtime</b>.</p>
@@ -694,8 +671,6 @@ Mirror traffic to v2, but discard the response. Users only see v1's result.
     <p class="text-[9px] text-slate-200 font-bold mt-1 inline-block bg-slate-700 px-1 rounded">Release C — Clean Up</p>
     <p class="text-[9px] text-slate-300 mt-2 leading-relaxed">Only <i>after</i> 100% of traffic has migrated: drop the old <code>first_name</code> column. The rename is now safely complete.</p>
   </div>
-</div>
-
 </div>
 
 ---
@@ -725,22 +700,17 @@ The unifying theory where deployment is a continuous expansion of exposure surfa
 
 # Choosing a Strategy
 
+<div class="mb-6 bg-slate-800 p-3 rounded border border-slate-700 font-bold text-sm text-center text-slate-200">
+  <span class="text-blue-400">The Modern Meta:</span> Blue/Green for cutover + Progressive Canary for exposure + Expand/Contract for DB.
+</div>
+
 | Decision Framework | Choose... |
 |--------------------|-----------|
 | **Instant Rollback (Seconds)** | Blue/Green |
 | **Silent/Slow Failure Mode** | Long Canary or Shadow |
 | **High Resource Constraints** | Rolling Update |
+| **Downtime Acceptable?** | Recreate |
 | **Strict Session Persistence** | Sticky Canary or A/B |
-
-**The Modern Meta:** Blue/Green for cutover + Progressive Canary for exposure + Expand/Contract for DB.
-
----
-layout: section
----
-
-# Deep Dive: Kubernetes Architecture
-
-Let's look closely at what actually powers the cluster.
 
 ---
 
@@ -784,34 +754,34 @@ The ultimate brain and memory of the cluster.
 
 ---
 
-# The Control Plane: kube-scheduler (1/2)
+# The Control Plane: kube-scheduler
 
 How does K8s decide where your Pod goes?
 
-<div class="mt-8 space-y-4">
-
 When you apply a Deployment, the scheduler does a 2-step process for every new Pod:
 
-1. **Filtering (Predicates):**
-   - *Does Node 1 have enough RAM?* (Yes)
-   - *Does Node 2 have a GPU attached?* (No -> Filtered out)
-   - *Is Node 3 tainted against my Pod?* (Yes -> Filtered out)
+<div class="grid grid-cols-2 gap-8 mt-6">
+  <div class="bg-slate-800 p-4 rounded border border-slate-700">
+    <h3 class="font-bold text-sm text-slate-300 mb-2">1. Filtering (Predicates)</h3>
+    <ul class="text-[10px] space-y-1 text-slate-400">
+      <li><i>Does Node 1 have enough RAM?</i> (Yes)</li>
+      <li><i>Does Node 2 have a GPU attached?</i> (No -> Filtered out)</li>
+      <li><i>Is Node 3 tainted against my Pod?</i> (Yes -> Filtered out)</li>
+    </ul>
+  </div>
 
+  <div class="bg-slate-800 p-4 rounded border border-slate-700">
+    <h3 class="font-bold text-sm text-slate-300 mb-2">2. Scoring (Priorities)</h3>
+    <ul class="text-[10px] space-y-1 text-slate-400">
+      <li>The scheduler ranks the surviving nodes.</li>
+      <li><i>Node 1 has 90% CPU free.</i> (Score: 10/10)</li>
+      <li><i>Node 4 has 10% CPU free.</i> (Score: 1/10)</li>
+    </ul>
+  </div>
 </div>
 
----
-
-# The Control Plane: kube-scheduler (2/2)
-
-<div class="mt-8 space-y-4">
-
-2. **Scoring (Priorities):**
-   - The scheduler ranks the surviving nodes.
-   - *Node 1 has 90% CPU free.* (Score: 10/10)
-   - *Node 4 has 10% CPU free.* (Score: 1/10)
-
-**Result:** The Pod is bound to Node 1.
-
+<div class="mt-6 text-center font-bold text-sm text-slate-200">
+  Result: The Pod is bound to Node 1.
 </div>
 
 ---
@@ -863,16 +833,10 @@ The "Node Brain" that executes the Control Plane's orders.
 </div>
 
 ---
-layout: section
----
-
-# Deep Dive: Advanced K8s Workloads
-
-Beyond just the standard `Deployment`.
-
----
 
 # StatefulSets vs. Deployments
+
+<p class="text-sm italic text-slate-400 uppercase tracking-widest mb-6">Deep Dive: Advanced K8s Workloads</p>
 
 When database instances need their identity to survive reboots.
 
@@ -993,16 +957,10 @@ Pods aren't just for running your simple web server.
 </div>
 
 ---
-layout: section
----
-
-# Section 3: Networking, Architecture & Workloads
-
-Supporting context for our deployment strategies
-
----
 
 # Ingress (The Smart Gateway)
+
+<p class="text-sm italic text-slate-400 uppercase tracking-widest mb-6">Section 3: Networking, Architecture & Workloads</p>
 
 While a `LoadBalancer` service is great, it’s expensive and inefficient to spin up a new cloud load balancer for every single microservice you have. **Ingress solves this.**
 
@@ -1022,6 +980,7 @@ While a `LoadBalancer` service is great, it’s expensive and inefficient to spi
     <li><mdi-shield-lock class="text-rose-400 inline mr-2"/> <b>SSL/TLS Termination:</b> Handle certs in one place.</li>
     <li><mdi-cash-multiple class="text-amber-400 inline mr-2"/> <b>Efficiency:</b> 1 Load Balancer for dozens of services.</li>
   </ul>
+</div>
 </div>
 
 ---
@@ -1167,6 +1126,7 @@ Ingress is great, but it has flaws. The K8s project is officially replacing `Ing
 - Fully supports modern routing: gRPC, headers, weighted traffic splitting (A/B testing out of the box).
 
 </div>
+</div>
 
 ---
 
@@ -1215,11 +1175,6 @@ Do not hardcode configuration into your Docker Images!
 
 <Admonition color="slate" title="🚨 CRITICAL: Secrets Are NOT Encrypted" icon="mdi-shield-alert" customTitle="text-sm font-bold">
   <p class="text-[10px] text-slate-200 uppercase tracking-wider font-bold">Secrets are <b>Base64 encoded — NOT encrypted.</b> Anyone with <code>kubectl get secret</code> can read them.</p>
-  <div class="mt-2 bg-slate-950 p-2 rounded font-mono text-[9px] text-slate-300">
-    # Anyone can decode your database password in one second:<br/>
-    $ kubectl get secret db-pass -o jsonpath='{.data.password}' | base64 -d<br/>
-    <span class="text-slate-400 font-bold">→ my-super-secret-password</span>
-  </div>
   <p class="text-[9px] text-slate-400 font-bold mt-2">→ Avoid "Security by Obscurity". Use SealedSecrets or Vault.</p>
 </Admonition>
 
@@ -1263,16 +1218,10 @@ If everything in K8s is declarative YAML stored in Git, **where do you put the D
 ---
 
 ---
-layout: section
----
-
-# Section 4: Deep Dive — Advanced Concepts
-
-Enabling Production-Grade Reliability
-
----
 
 # Pod Lifecycle & Phases
+
+<p class="text-sm italic text-slate-400 uppercase tracking-widest mb-6">Section 4: Deep Dive — Advanced Concepts</p>
 
 Understanding exactly what happens when a Pod is created or terminated is critical for debugging.
 
@@ -1308,7 +1257,12 @@ Understanding exactly what happens when a Pod is created or terminated is critic
 
 Get these wrong, and you'll have bad deploys or phantom traffic.
 
-<div class="grid grid-cols-3 gap-4 mt-6">
+<div class="mt-4 mb-6 bg-slate-800 p-3 rounded border border-slate-700">
+<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Common Pitfall</p>
+<p class="text-[9px] text-slate-300">Using the same endpoint for Liveness and Readiness. If your DB is down, Readiness should fail (stop traffic), but Liveness should pass (don't restart!).</p>
+</div>
+
+<div class="grid grid-cols-3 gap-4">
   <Admonition color="slate" title="1. Liveness" icon="mdi-heart-pulse">
     <p class="text-[9px]">Is the app alive? If it fails, K8s <b>restarts</b> the container. Used for fixing deadlocks.</p>
   </Admonition>
@@ -1318,11 +1272,6 @@ Get these wrong, and you'll have bad deploys or phantom traffic.
   <Admonition color="slate" title="3. Startup" icon="mdi-power-cycle">
     <p class="text-[9px]">Is the app done starting? Disables other probes until success. Great for slow Java boots.</p>
   </Admonition>
-</div>
-
-<div class="mt-6 bg-slate-800 p-3 rounded border border-slate-700">
-<p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Common Pitfall</p>
-<p class="text-[9px] text-slate-300">Using the same endpoint for Liveness and Readiness. If your DB is down, Readiness should fail (stop traffic), but Liveness should pass (don't restart!).</p>
 </div>
 
 ---
@@ -1473,13 +1422,9 @@ Persistence is hard. K8s makes it reproducible.
 
 ---
 
-# Section 5: Debugging Kubernetes
-
-The systematic troubleshooting workflow
-
----
-
 # The Golden Troubleshooting Workflow
+
+<p class="text-sm italic text-slate-400 uppercase tracking-widest mb-6">Section 5: Debugging Kubernetes</p>
 
 When an app is down, follow the traffic from the inside out:
 
@@ -1496,7 +1441,7 @@ When an app is down, follow the traffic from the inside out:
   <Admonition color="slate" title="4. Ingress: The Entry" icon="mdi-routes">
     <p class="text-[9px] text-slate-200 leading-tight">Check <code>describe ingress</code>. Common pitfalls: host typo (<code>api.devops.locl</code>) or wrong path prefix (<code>/api</code> vs <code>/api/</code>).</p>
   </Admonition>
-  <Admonition color="slate" title="5. The Ghost: 502 Bad Gateway" icon="mdi-ghost">
+  <Admonition color="slate" title="5. App Running But Unreachable" icon="mdi-ghost">
     <p class="text-[9px] text-slate-200 leading-tight">The Pod is <code>Running</code>, but users get 502s. <b>Diagnosis:</b> Is the app listening on <code>0.0.0.0</code> (all interfaces) or just <code>127.0.0.1</code>? Is the <code>targetPort</code> correct?</p>
   </Admonition>
 </div>
@@ -1574,61 +1519,63 @@ When an app is down, follow the traffic from the inside out:
 ---
 
 
-# Common Error 1: CrashLoopBackOff
+# Common Crash Errors
 
 <div class="grid grid-cols-2 gap-8 mt-6">
-  <Admonition color="slate" title="Symptoms" icon="mdi-history">
-    <p class="text-[10px] text-slate-200">The pod starts, crashes immediately, and Kubernetes keeps trying to restart it infinitely.</p>
-  </Admonition>
-  
-  <Admonition color="slate" title="Root Causes" icon="mdi-alert-circle">
-    <ul class="text-[9px] space-y-1 text-slate-200">
-      <li>Missing environment variables (DB_URL).</li>
-      <li>Application fatal exceptions.</li>
-      <li>Resource limits exceeded (OOMKilled).</li>
-    </ul>
-  </Admonition>
-</div>
+  <div>
+    <h3 class="text-blue-400 font-bold mb-4">1. CrashLoopBackOff</h3>
+    <Admonition color="slate" title="Symptoms" icon="mdi-history" customTitle="text-[10px]">
+      <p class="text-[9px] text-slate-200">Pod starts, crashes immediately, and keeps restarting infinitely.</p>
+    </Admonition>
+    <div class="mt-2">
+      <Admonition color="slate" title="Root Causes" icon="mdi-alert-circle" customTitle="text-[10px]">
+        <ul class="text-[9px] space-y-1 text-slate-200">
+          <li>Missing env vars (DB_URL).</li>
+          <li>App fatal exceptions.</li>
+          <li>OOMKilled (limits exceeded).</li>
+        </ul>
+      </Admonition>
+    </div>
+    <div class="mt-2">
+      <Admonition color="slate" title="Debug" icon="mdi-bug-check" customTitle="text-[10px]">
+        <code class="text-[8px]">kubectl logs &lt;pod&gt; --previous</code>
+      </Admonition>
+    </div>
+  </div>
 
-<div class="mt-6">
-  <Admonition color="slate" title="How to debug?" icon="mdi-bug-check">
-    <code class="text-[10px]">kubectl logs &lt;pod-name&gt; --previous</code>
-    <p class="text-[10px] text-slate-400 mt-2 italic">Check the logs of the instance that just died!</p>
-  </Admonition>
-</div>
-
----
-
-# Common Error 2: ImagePullBackOff
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-  <Admonition color="slate" title="Symptoms" icon="mdi-image-off">
-    <p class="text-[10px] text-slate-200">The pod stays in <code>ImagePullBackOff</code> or <code>ErrImagePull</code> state.</p>
-  </Admonition>
-  
-  <Admonition color="slate" title="Root Causes" icon="mdi-alert">
-    <ul class="text-[9px] space-y-1 text-slate-200">
-      <li>Typo in image name/tag.</li>
-      <li>Tag doesn't exist on Registry.</li>
-      <li>Missing <b>ImagePullSecrets</b> for private repos.</li>
-    </ul>
-  </Admonition>
-</div>
-
-<div class="mt-6">
-  <Admonition color="slate" title="How to debug?" icon="mdi-eye-check">
-    <code class="text-[10px]">kubectl describe pod &lt;pod-name&gt;</code>
-    <p class="text-[10px] text-slate-400 mt-2 italic">Look at the <b>Events</b> section at the bottom.</p>
-  </Admonition>
+  <div>
+    <h3 class="text-orange-400 font-bold mb-4">2. ImagePullBackOff</h3>
+    <Admonition color="slate" title="Symptoms" icon="mdi-image-off" customTitle="text-[10px]">
+      <p class="text-[9px] text-slate-200">Pod stays in <code>ImagePullBackOff</code> or <code>ErrImagePull</code> state.</p>
+    </Admonition>
+    <div class="mt-2">
+      <Admonition color="slate" title="Root Causes" icon="mdi-alert" customTitle="text-[10px]">
+        <ul class="text-[9px] space-y-1 text-slate-200">
+          <li>Typo in image name/tag.</li>
+          <li>Tag doesn't exist.</li>
+          <li>Missing ImagePullSecrets.</li>
+        </ul>
+      </Admonition>
+    </div>
+    <div class="mt-2">
+      <Admonition color="slate" title="Debug" icon="mdi-eye-check" customTitle="text-[10px]">
+        <code class=\"text-[8px]\">kubectl describe pod &lt;pod&gt;</code>
+      </Admonition>
+    </div>
+  </div>
 </div>
 
 ---
 
 # Essential Debugging (kubectl)
 
+<div class="mb-4 inline-block bg-blue-900/30 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+  <mdi-star-face class="inline mr-1"/> Cheat Sheet
+</div>
+
 The standard tools for troubleshooting any Kubernetes cluster:
 
-<div class="mt-6 text-sm">
+<div class="mt-6 text-sm bg-slate-800/50 p-6 rounded-xl border-2 border-slate-600 shadow-xl">
 
 | Command | Purpose |
 |---------|---------|
@@ -1645,9 +1592,13 @@ The standard tools for troubleshooting any Kubernetes cluster:
 
 # Essential Debugging (Minikube)
 
+<div class="mb-4 inline-block bg-blue-900/30 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+  <mdi-star-face class="inline mr-1"/> Cheat Sheet
+</div>
+
 Specific tools for your local development environment:
 
-<div class="mt-6 text-sm">
+<div class="mt-6 text-sm bg-slate-800/50 p-6 rounded-xl border-2 border-slate-600 shadow-xl">
 
 | Command | Purpose |
 |---------|---------|
@@ -1678,11 +1629,11 @@ Now that our local cluster is running...
 <div class="mt-6 space-y-2 text-left text-sm bg-slate-800 p-4 rounded border border-slate-700">
 
 ### Instructor Demo:
-1. We will deploy intentionally "broken" YAML manifests (`CrashLoopBackOff`, `ImagePullBackOff`).
-2. We will systematically use `kubectl` commands to find the root cause.
-3. We will fix the YAML files and apply them to see the Pods turn into `Running`.
+1. We will deploy a working 3-tier application (React FE, Node BE, Postgres DB).
+2. We will systematically use `kubectl` commands to inspect the cluster state (`get pods`, `get svc`).
+3. We will explore the running application using `kubectl logs`, `kubectl describe`, and `minikube service` to view the UI.
 
-<p class="text-[10px] text-slate-400 italic mt-2">*Code is available in the `/demo/debugging` folder!*</p>
+<p class="text-[10px] text-slate-400 italic mt-2">*Code is available in the `/demo/04-3tier-app` folder!*</p>
 
 </div>
 
